@@ -1,5 +1,7 @@
+# create_db.py
 from app.db.session import Base, engine
 from app.models.session import GameSession
+from app.models.user import User
 
 def create_tables():
     print("Criando tabelas no banco de dados...")
