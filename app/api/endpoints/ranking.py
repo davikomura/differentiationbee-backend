@@ -1,3 +1,4 @@
+# app/api/endpoints/ranking.py
 from typing import List
 from sqlalchemy.orm import Session
 from fastapi import Depends, APIRouter
@@ -17,10 +18,17 @@ class RankingItem(BaseModel):
     created_at: str
 
 class SaveSessionRequest(BaseModel):
-    username: str
     score: int
     correct_answers: int
     average_time: float
+    
+@router.post("/start")
+def start_new_session(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    session = GameSession(user_id=current_user.id)
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    return {"message": "Sessão iniciada", "session_id": session.id}
 
 @router.get("/top", response_model=List[RankingItem])
 def get_top_ranking(limit: int = 10, db: Session = Depends(get_db)):

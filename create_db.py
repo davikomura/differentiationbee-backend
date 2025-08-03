@@ -2,6 +2,7 @@
 from app.db.session import Base, engine
 from app.models.session import GameSession
 from app.models.user import User
+from app.models.session_question import SessionQuestion
 
 def create_tables():
     print("Criando tabelas no banco de dados...")

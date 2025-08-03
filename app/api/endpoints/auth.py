@@ -1,7 +1,6 @@
-# app/api/endpoints/auth.py
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordBearer
 
 from app.db.session import get_db
 from app.schemas.auth import UserCreate, UserLogin, Token, UserRead
@@ -14,6 +13,7 @@ from app.core.security import decode_access_token
 from app.models.user import User
 
 router = APIRouter()
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 @router.post("/register", response_model=UserRead)
@@ -22,8 +22,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=Token)
-def login(login_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, UserLogin(username=login_data.username, password=login_data.password))
+def login(login_data: UserLogin, db: Session = Depends(get_db)):
+    user = authenticate_user(db, login_data)
     return create_token_for_user(user)
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
