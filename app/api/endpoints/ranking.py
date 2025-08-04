@@ -18,6 +18,7 @@ class RankingItem(BaseModel):
     created_at: str
 
 class SaveSessionRequest(BaseModel):
+    session_id: int
     score: int
     correct_answers: int
     average_time: float
@@ -53,16 +54,19 @@ def get_top_ranking(limit: int = 10, db: Session = Depends(get_db)):
 
 @router.post("/save")
 def save_session(payload: SaveSessionRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    session = GameSession(
-        user_id=current_user.id,
-        score=payload.score,
-        correct_answers=payload.correct_answers,
-        average_time=payload.average_time,
-    )
-    db.add(session)
+    session = db.query(GameSession).filter_by(id=payload.session_id, user_id=current_user.id).first()
+    
+    if not session:
+        return {"error": "Sessão não encontrada"}, 404
+
+    session.score = payload.score
+    session.correct_answers = payload.correct_answers
+    session.average_time = payload.average_time
+    
     db.commit()
     db.refresh(session)
-    return {"message": "Session saved!", "session_id": session.id}
+
+    return {"message": "Session updated!", "session_id": session.id}
 
 @router.get("/my", response_model=List[RankingItem])
 def get_my_sessions(
