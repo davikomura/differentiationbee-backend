@@ -7,11 +7,11 @@
 ## 🚀 Funcionalidades
 
 - 🧠 Geração aleatória de funções simbólicas com diferentes níveis de dificuldade
-- ✍️ Validação automática de derivadas com `SymPy`
+- ✍️ Validação automática e segura de derivadas com `SymPy`
 - 🔐 Sistema de autenticação com JWT (registro e login via JSON)
-- 📊 Ranking global e histórico pessoal
+- 📊 Ranking global baseado apenas em sessões finalizadas
 - ⏱️ Pontuação baseada em acertos e tempo de resposta
-- 🗂️ Tracking detalhado de cada questão respondida
+- 🗂️ Tracking detalhado de cada questão (anti-cheat server-side)
 
 ---
 
@@ -37,7 +37,7 @@ Para cada questão:
   - Pontuação total
   - Número de acertos
   - Tempo médio por questão
-- Envia esses dados via `POST /ranking/save` para atualizar a sessão
+- Envia esses dados via `POST /ranking/save` para finalizar a sessão e atualizar o ranking
 
 ### 5. Visualização do ranking
 - Global: `GET /ranking/top`
