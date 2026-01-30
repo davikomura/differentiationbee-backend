@@ -1,6 +1,6 @@
 # app/core/security.py
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import jwt, JWTError, ExpiredSignatureError
 from fastapi import HTTPException, status
@@ -13,15 +13,19 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    payload = {"sub": subject, "exp": expire}
-    encoded_jwt = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    now = datetime.now(timezone.utc)
+    expire = now + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+
+    payload = {
+        "sub": subject,
+        "iat": int(now.timestamp()),
+        "exp": int(expire.timestamp()),
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 def decode_access_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -37,8 +41,8 @@ def decode_access_token(token: str) -> dict:
 
 def extract_username_from_token(token: str) -> str:
     payload = decode_access_token(token)
-    username: Optional[str] = payload.get("sub")
-    if username is None:
+    username = payload.get("sub")
+    if not username:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token malformado (sem 'sub')",

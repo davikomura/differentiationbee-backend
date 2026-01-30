@@ -62,12 +62,29 @@ Para cada questão:
 
 app/
 ├── api/
-│   └── endpoints/         # Rotas organizadas (auth, question, validate, ranking)
+│   ├── endpoints/         # Rotas organizadas (auth, question, validate, ranking)
+│   │   ├── auth.py
+│   │   ├── question.py
+│   │   ├── ranking.py
+│   │   ├── session_question.py
+│   │   └── validate.py
+│   └── router.py
 ├── core/                  # Segurança e token JWT
+│   └── security.py
 ├── db/                    # Sessão de banco e criação de tabelas
+│   └── session.py
 ├── models/                # ORM: User, GameSession, SessionQuestion
+│   ├── session_question.py
+│   ├── session.py
+│   └── user.py
 ├── schemas/               # Pydantic: validação de entrada e saída
+│   ├── auth.py
+│   └── session_question.py
 ├── services/              # Lógica de negócio (auth, validação, geração)
+│   ├── auth.py
+│   ├── generator.py
+│   └── validator.py
+├── main.py
 
 ````
 

@@ -1,3 +1,4 @@
+# app/schemas/session_question.py
 from pydantic import BaseModel
 
 class QuestionAnswerCreate(BaseModel):

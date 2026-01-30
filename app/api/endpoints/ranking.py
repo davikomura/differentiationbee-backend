@@ -1,7 +1,8 @@
 # app/api/endpoints/ranking.py
+from operator import and_
 from typing import List
 from sqlalchemy.orm import Session
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, HTTPException
 from pydantic import BaseModel
 from app.models.session import GameSession
 from app.db.session import get_db
@@ -36,6 +37,7 @@ def get_top_ranking(limit: int = 10, db: Session = Depends(get_db)):
     sessions = (
         db.query(GameSession)
         .join(GameSession.user)
+        .filter(GameSession.is_finished.is_(True))
         .order_by(GameSession.score.desc())
         .limit(limit)
         .all()
@@ -55,14 +57,16 @@ def get_top_ranking(limit: int = 10, db: Session = Depends(get_db)):
 @router.post("/save")
 def save_session(payload: SaveSessionRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     session = db.query(GameSession).filter_by(id=payload.session_id, user_id=current_user.id).first()
-    
+
     if not session:
         return {"error": "Sessão não encontrada"}, 404
 
     session.score = payload.score
     session.correct_answers = payload.correct_answers
     session.average_time = payload.average_time
-    
+
+    session.is_finished = True
+
     db.commit()
     db.refresh(session)
 
@@ -75,7 +79,10 @@ def get_my_sessions(
 ):
     sessions = (
         db.query(GameSession)
-        .filter(GameSession.user_id == current_user.id)
+        .filter(
+            GameSession.user_id == current_user.id,
+            GameSession.is_finished.is_(True),
+        )
         .order_by(GameSession.created_at.desc())
         .all()
     )

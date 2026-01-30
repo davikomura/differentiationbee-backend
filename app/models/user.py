@@ -13,4 +13,9 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    sessions = relationship("GameSession", back_populates="user", cascade="all, delete")
+    sessions = relationship(
+        "GameSession",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )

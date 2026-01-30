@@ -7,7 +7,11 @@ class SessionQuestion(Base):
     __tablename__ = "session_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("sessions.id"), nullable=False)
+    session_id = Column(
+        Integer,
+        ForeignKey("sessions.id", ondelete="CASCADE"),
+        nullable=False
+    )
 
     question_str = Column(String, nullable=False)
     correct_answer_str = Column(String, nullable=False)

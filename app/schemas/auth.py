@@ -4,7 +4,7 @@ from typing import Annotated
 from datetime import datetime
 
 UsernameStr = Annotated[str, StringConstraints(min_length=3, max_length=30)]
-PasswordStr = Annotated[str, StringConstraints(min_length=6)]
+PasswordStr = Annotated[str, StringConstraints(min_length=8)]
 
 class UserCreate(BaseModel):
     username: UsernameStr

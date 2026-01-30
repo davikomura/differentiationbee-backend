@@ -1,3 +1,4 @@
+# app/services/generator.py
 import random
 import sympy as sp
 import uuid
@@ -45,7 +46,7 @@ def generate_random_function(level: int, seed: int = None):
     elif level == 8:
         numerator = random.choice([x * sp.sin(x), sp.exp(x) + 1])
         denominator = random.choice([sp.cos(x), x**2 + 2])
-        expr = numerator / (denominator + 0.1)
+        expr = numerator / (denominator + sp.Rational(1, 10))
 
     elif level == 9:
         inner = sp.sin(x**2 + 1) + x**2 + 2
