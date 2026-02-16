@@ -15,7 +15,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
     now = datetime.now(timezone.utc)
     expire = now + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-
     payload = {
         "sub": subject,
         "iat": int(now.timestamp()),
@@ -39,13 +38,13 @@ def decode_access_token(token: str) -> dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-def extract_username_from_token(token: str) -> str:
+def extract_subject_from_token(token: str) -> str:
     payload = decode_access_token(token)
-    username = payload.get("sub")
-    if not username:
+    sub = payload.get("sub")
+    if not sub:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token malformado (sem 'sub')",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return username
+    return str(sub)

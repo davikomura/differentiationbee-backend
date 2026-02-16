@@ -3,8 +3,11 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from app.models.user import User
-from app.schemas.auth import UserCreate, UserLogin, Token
+from app.models.user_stats import UserStats
+from app.schemas.auth import UserCreate, UserLogin, TokenPair
 from app.core.security import create_access_token
+from app.services.refresh_tokens import issue_refresh_token
+from app.services.elo import DEFAULT_RATING
 import re
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -48,6 +51,11 @@ def register_user(db: Session, user_data: UserCreate):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    stats = UserStats(user_id=new_user.id, rating=DEFAULT_RATING)
+    db.add(stats)
+    db.commit()
+
     return new_user
 
 def authenticate_user(db: Session, login_data: UserLogin):
@@ -56,7 +64,7 @@ def authenticate_user(db: Session, login_data: UserLogin):
     user = db.query(User).filter(User.username == username).first()
     hashed = user.hashed_password if user else "$2b$12$invalidhashfake..."
     pwd_ok = verify_password(login_data.password, hashed)
-    
+
     if not user or not pwd_ok:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -65,6 +73,7 @@ def authenticate_user(db: Session, login_data: UserLogin):
         )
     return user
 
-def create_token_for_user(user: User) -> Token:
-    token = create_access_token(subject=user.username)
-    return Token(access_token=token)
+def create_tokens_for_user(db: Session, user: User) -> TokenPair:
+    access = create_access_token(subject=str(user.id))
+    refresh = issue_refresh_token(db, user.id)
+    return TokenPair(access_token=access, refresh_token=refresh)

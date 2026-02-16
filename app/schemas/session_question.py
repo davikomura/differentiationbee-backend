@@ -1,10 +1,7 @@
 # app/schemas/session_question.py
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class QuestionAnswerCreate(BaseModel):
-    session_id: int
-    question_str: str
-    correct_answer_str: str
+    question_instance_id: str = Field(min_length=10, max_length=64)
     user_answer: str
-    is_correct: bool
-    time_taken: float
+    use_latex: bool = False
