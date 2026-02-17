@@ -4,6 +4,7 @@ from app.db.base import Base
 from app.modules.users.models import User
 from app.modules.auth.models import RefreshToken
 from app.modules.seasons.models import Season
+from app.modules.tiers.models import Tier, TierTranslation
 
 def reset_schema(schema: str = "public"):
     with engine.connect() as conn:
@@ -16,4 +17,4 @@ if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
     print("✅ Banco resetado e tabelas recriadas.")
 
-# python -m app.scripts.create_tabless
+# python -m app.scripts.create_tables

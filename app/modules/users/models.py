@@ -10,6 +10,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    points = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
     refresh_tokens = relationship(

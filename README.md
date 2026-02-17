@@ -1,7 +1,8 @@
 # Differentiation Bee – Backend API
 
 API do **Differentiation Bee**, uma aplicação gamificada para treino de derivadas.
-O sistema gera funções, valida respostas simbólicas e gerencia autenticação de usuários com JWT e refresh tokens.
+
+O sistema gera funções, valida respostas simbólicas, gerencia autenticação de usuários, progressão por pontos e estrutura de temporadas.
 
 ---
 
@@ -12,8 +13,10 @@ O backend é responsável por:
 * Autenticação de usuários (JWT + refresh rotation)
 * Geração de exercícios de derivadas
 * Validação simbólica de respostas usando SymPy
-* Gerenciamento de sessões de jogo e pontuação (em evolução)
-* Persistência de usuários e tokens
+* Sistema de progressão baseado em pontos e tiers
+* Estrutura de temporadas (seasons)
+* Persistência de usuários, tokens e dados do jogo
+* Suporte a múltiplos idiomas (pt-BR, en, es)
 
 ---
 
@@ -56,9 +59,21 @@ app/
     ├── users/
     │   └── models.py
     │
-    └── game/
-        ├── generator.py
-        └── validator.py
+    ├── game/
+    │   ├── generator.py
+    │   └── validator.py
+    │
+    ├── seasons/
+    │   ├── router.py
+    │   ├── service.py
+    │   ├── schemas.py
+    │   └── models.py
+    │
+    └── tiers/
+        ├── router.py
+        ├── service.py
+        ├── schemas.py
+        └── models.py
 ```
 
 ---
@@ -163,25 +178,42 @@ Retorna dados do usuário autenticado.
 
 ---
 
-## Sistema de Tokens
+## Sistema de Pontos e Tiers
 
-Access token:
+O sistema de progressão é baseado em **points**.
 
-* curta duração
-* usado em todas as requisições
+Após cada exercício:
 
-Refresh token:
+* acertos aumentam pontos
+* erros reduzem pontos
+* o tier é recalculado automaticamente
 
-* longa duração
-* armazenado no banco
-* rotacionado a cada refresh
+Existe uma margem de proteção contra rebaixamento imediato (**demotion gap**), evitando quedas de tier por pequenas perdas.
 
-Fluxo:
+Os tiers são fixos e possuem nomes traduzidos automaticamente conforme o idioma do usuário.
 
-1. Login → access + refresh
-2. Access expira
-3. App chama `/auth/refresh`
-4. Backend retorna novo par
+---
+
+## Sistema de Temporadas (Seasons)
+
+O backend suporta temporadas com:
+
+* período de início e fim
+* nomes traduzidos
+* identificação automática da temporada ativa
+* suporte a ranking por temporada (em evolução)
+
+O idioma é determinado pelo header:
+
+```
+Accept-Language
+```
+
+Idiomas suportados atualmente:
+
+* pt-BR
+* en
+* es
 
 ---
 
@@ -218,14 +250,29 @@ Pontuação depende de:
 
 ---
 
+## Internacionalização (i18n)
+
+O sistema suporta múltiplos idiomas através de tabelas de tradução no banco.
+
+Atualmente suportados:
+
+* pt-BR
+* en
+* es
+
+Novos idiomas podem ser adicionados sem alteração estrutural no código.
+
+---
+
 ## Próximos passos planejados
 
 * GameSession
 * Attempt
-* Leaderboard
+* Leaderboard global
 * Ranking por temporada
 * Daily challenge
 * Estatísticas do usuário
+* Balanceamento adaptativo de pontos
 
 ---
 
@@ -236,6 +283,8 @@ Pontuação depende de:
 * Parsing simbólico controlado
 * Separação por domínio
 * Services desacoplados de routers
+* Estrutura preparada para internacionalização
+* Progressão desacoplada da lógica de jogo
 
 ---
 
