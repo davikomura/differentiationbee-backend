@@ -7,6 +7,7 @@ from app.db.session import get_db
 from app.modules.auth.schemas import UserCreate, UserLogin, UserRead, TokenPair, RefreshRequest, LogoutRequest
 from app.modules.auth.service import register_user, authenticate_user, create_tokens_for_user
 from app.core.security import decode_access_token, create_access_token
+from app.modules.tiers.service import get_tier_for_points, tier_to_read
 from app.modules.users.models import User
 from app.modules.auth.refresh_tokens import rotate_refresh_token, revoke_refresh_token
 
@@ -62,10 +63,18 @@ def logout(payload: LogoutRequest, db: Session = Depends(get_db)):
     return {"message": "Logout realizado"}
 
 @router.get("/me")
-def me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def me(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    locale = request.headers.get("accept-language")
+    locale = locale.split(",")[0].strip() if locale else "en"
+
+    points = int(getattr(current_user, "points", 0))
+    tier = tier_to_read(get_tier_for_points(db, points), locale)
+
     return {
         "id": current_user.id,
         "username": current_user.username,
         "email": current_user.email,
+        "points": points,
+        "tier": tier,
         "created_at": current_user.created_at.isoformat(),
     }

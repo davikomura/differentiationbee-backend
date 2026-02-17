@@ -54,6 +54,25 @@ def get_tier_for_points(db: Session, points: int) -> Tier:
             return t
     return db.query(Tier).order_by(Tier.min_points.asc()).first()
 
+def apply_points_change_with_soft_demotion(db: Session, current_points: int, delta: int) -> int:
+    new_val = max(0, current_points + delta)
+    current_tier = get_tier_for_points(db, current_points)
+
+    if delta < 0 and new_val < current_tier.min_points:
+        if new_val >= (current_tier.min_points - DEMOTION_GAP):
+            return current_tier.min_points
+    return new_val
+
+def tier_to_read(tier: Tier, locale: str) -> dict:
+    tr = _pick_translation(tier, locale)
+    return {
+        "key": tier.key,
+        "min_points": tier.min_points,
+        "max_points": tier.max_points,
+        "title": tr.title if tr else tier.key,
+        "description": tr.description if tr else None,
+    }
+
 def apply_match_result_with_soft_demotion(
     db: Session,
     current_points: int,

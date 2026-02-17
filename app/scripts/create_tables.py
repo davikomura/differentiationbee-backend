@@ -5,6 +5,9 @@ from app.modules.users.models import User
 from app.modules.auth.models import RefreshToken
 from app.modules.seasons.models import Season
 from app.modules.tiers.models import Tier, TierTranslation
+from app.modules.sessions.models import GameSession
+from app.modules.attempts.models import Attempt
+from app.modules.game.models import IssuedQuestion
 
 def reset_schema(schema: str = "public"):
     with engine.connect() as conn:
