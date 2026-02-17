@@ -1,327 +1,135 @@
-# 🐝 Differentiation Bee
+# Differentiation Bee – Backend API
 
-**Differentiation Bee** é um jogo educacional competitivo de derivadas matemáticas, no estilo quiz, com progressão por habilidade baseada em **Elo**, **arenas** e **temporadas**, combinando cálculo simbólico, autenticação segura e ranking competitivo.
-
-O objetivo é transformar o treino de derivadas em uma experiência semelhante a jogos competitivos, com progressão real de habilidade.
-
----
-
-# 🚀 Funcionalidades
-
-### Jogabilidade
-
-* 🧠 Geração aleatória de funções simbólicas com diferentes níveis de dificuldade
-* 🎯 Progressão automática de dificuldade baseada no Elo do jogador
-* 🏟️ Sistema de arenas que determina o nível das questões
-* 🔁 Sistema anti-repetição de questões para evitar “decoreba”
-* 📊 Histórico completo de respostas salvo no banco
+API do **Differentiation Bee**, uma aplicação gamificada para treino de derivadas.
+O sistema gera funções, valida respostas simbólicas e gerencia autenticação de usuários com JWT e refresh tokens.
 
 ---
 
-### Competitivo
+## Visão geral
 
-* 🏆 Ranking principal baseado em Elo
-* 📈 Elo global e Elo por temporada
-* 📍 Endpoint para posição individual no ranking
-* 🔄 Soft reset de Elo no início de cada temporada
-* 🗓️ Sistema de temporadas independentes
+O backend é responsável por:
 
----
-
-### Segurança e backend
-
-* 🔐 Autenticação JWT com access token e refresh token
-* 🚦 Rate limit em endpoints críticos
-* 🧮 Validação segura de derivadas com SymPy
-* 🗂️ Tracking detalhado server-side (anti-cheat)
+* Autenticação de usuários (JWT + refresh rotation)
+* Geração de exercícios de derivadas
+* Validação simbólica de respostas usando SymPy
+* Gerenciamento de sessões de jogo e pontuação (em evolução)
+* Persistência de usuários e tokens
 
 ---
 
-# 🔄 Fluxo de uso
+## Stack
 
-## 1. Autenticação
-
-* Usuário se registra:
-
-```
-POST /auth/register
-```
-
-* Usuário faz login:
-
-```
-POST /auth/login
-```
-
-Retorna:
-
-* access_token
-* refresh_token
-
----
-
-## 2. Início de sessão
-
-```
-POST /ranking/start
-```
-
-Retorna:
-
-* session_id
-
----
-
-## 3. Rodadas de questões
-
-Para cada questão:
-
-1. Backend escolhe automaticamente o nível com base no Elo
-
-```
-GET /question/generate?session_id=ID
-```
-
-2. Usuário responde
-
-3. Backend valida e atualiza Elo:
-
-```
-POST /session-question/track
-```
-
-O backend:
-
-* valida a derivada
-* calcula score
-* atualiza Elo global
-* atualiza Elo da temporada
-* registra histórico
-
----
-
-## 4. Final da sessão
-
-```
-POST /ranking/save
-```
-
-Atualiza:
-
-* score
-* tempo médio
-* acertos
-
----
-
-## 5. Ranking e progresso
-
-Ranking por Elo:
-
-```
-GET /ranking/elo/top
-```
-
-Posição individual:
-
-```
-GET /ranking/elo/me
-```
-
-Ranking por sessões:
-
-```
-GET /ranking/top
-```
-
----
-
-# 🏟️ Arenas e Elo
-
-O jogador progride por arenas conforme o rating:
-
-Exemplo:
-
-| Arena                  | Rating  |
-| ---------------------- | ------- |
-| Vale dos Polinômios    | 0–199   |
-| Floresta das Tangentes | 200–399 |
-| Planícies das Cadeias  | 400–649 |
-| Torres do Produto      | 650–949 |
-
-O nível das questões é escolhido automaticamente com base na arena.
-
----
-
-# 🗓️ Temporadas
-
-Cada temporada possui:
-
-* ranking independente
-* elo independente
-* histórico preservado
-
-No início de uma nova temporada:
-
-Soft reset:
-
-```
-novo_rating = base + fator * (rating_antigo - base)
-```
-
-Isso mantém progressão sem zerar completamente.
-
-Endpoints:
-
-```
-GET /seasons/current
-POST /seasons/start
-```
-
----
-
-# 🔁 Anti-repetição de questões
-
-O backend:
-
-* guarda hash das expressões
-* evita repetir funções já vistas recentemente
-* gera novas variações automaticamente
-
-Isso reduz memorização e incentiva compreensão.
-
----
-
-# 🔐 Autenticação e segurança
-
-Sistema inclui:
-
-* JWT access token
-* Refresh token
-* Logout com revogação
-* Rate limit em:
-
-  * login
-  * track
-  * refresh
-
----
-
-# 🧱 Tecnologias
-
-Backend:
-
-* Python
 * FastAPI
-* SQLAlchemy
 * PostgreSQL
-
-Matemática:
-
+* SQLAlchemy
+* Pydantic
 * SymPy
-
-Segurança:
-
-* JWT (python-jose)
 * Passlib (bcrypt)
+* Python-JOSE (JWT)
 
 ---
 
-# 🗃️ Estrutura de pastas
+## Estrutura do projeto
 
 ```
 app/
-├── api/
-│   ├── endpoints/
-│   │   ├── auth.py
-│   │   ├── question.py
-│   │   ├── ranking.py
-│   │   ├── seasons.py
-│   │   ├── session_question.py
-│   │   └── validate.py
-│   └── router.py
-├── core/
-│   ├── security.py
-│   └── ratelimit.py
-├── db/
-│   └── session.py
-├── models/
-│   ├── user.py
-│   ├── user_stats.py
-│   ├── user_season_stats.py
-│   ├── season.py
-│   ├── session.py
-│   ├── session_question.py
-│   └── question_instance.py
-├── schemas/
-├── services/
-│   ├── auth.py
-│   ├── elo.py
-│   ├── generator.py
-│   ├── seasons.py
-│   ├── season_reset.py
-│   └── validator.py
-├── scripts/
-│   └── create_tables.py
 ├── main.py
+│
+├── api/
+│   └── router.py
+│
+├── core/
+│   └── security.py
+│
+├── db/
+│   ├── base.py
+│   └── session.py
+│
+└── modules/
+    ├── auth/
+    │   ├── router.py
+    │   ├── service.py
+    │   ├── schemas.py
+    │   ├── models.py
+    │   └── refresh_tokens.py
+    │
+    ├── users/
+    │   └── models.py
+    │
+    └── game/
+        ├── generator.py
+        └── validator.py
 ```
 
 ---
 
-# 🛠️ Como rodar localmente
+## Arquitetura
 
-## 1. Clonar o repositório
+O projeto segue separação por domínio:
+
+* router → endpoints HTTP
+* service → regra de negócio
+* models → ORM
+* schemas → validação e serialização
+
+Fluxo típico:
 
 ```
-git clone https://github.com/seu-usuario/differentiation-bee.git
-cd differentiation-bee
+Request → Router → Service → Database
 ```
 
-## 2. Criar ambiente virtual
+---
+
+## Configuração do ambiente
+
+Crie um arquivo `.env`:
 
 ```
-python -m venv .venv
-.venv\Scripts\activate
+DATABASE_URL=postgresql+psycopg2://user:password@localhost/dbname
+JWT_SECRET_KEY=supersecret
+REFRESH_TOKEN_EXPIRE_DAYS=30
+CORS_ALLOW_ORIGINS=http://localhost:5173
 ```
 
-## 3. Instalar dependências
+---
+
+## Instalação
+
+Criar ambiente virtual:
+
+```
+python -m venv venv
+```
+
+Ativar:
+
+Linux/macOS:
+
+```
+source venv/bin/activate
+```
+
+Windows:
+
+```
+venv\Scripts\activate
+```
+
+Instalar dependências:
 
 ```
 pip install -r requirements.txt
 ```
 
-## 4. Configurar `.env`
-
-```
-DATABASE_URL=postgresql://...
-JWT_SECRET_KEY=...
-```
-
-Opcional:
-
-```
-SEASON_RESET_BASE=100
-SEASON_RESET_FACTOR=0.76
-RECENT_DEDUP_LIMIT=200
-```
-
 ---
 
-## 5. Criar tabelas
-
-```
-python -m app.scripts.create_tables
-```
-
----
-
-## 6. Iniciar servidor
+## Rodando o servidor
 
 ```
 uvicorn app.main:app --reload
 ```
 
-Docs:
+Documentação automática:
 
 ```
 http://127.0.0.1:8000/docs
@@ -329,52 +137,105 @@ http://127.0.0.1:8000/docs
 
 ---
 
-# 📘 Principais endpoints
+## Endpoints principais
 
-Autenticação:
+### Auth
 
-```
-POST /auth/register
-POST /auth/login
-POST /auth/refresh
-POST /auth/logout
-GET /auth/me
-```
+POST `/auth/register`
+Cria um usuário.
 
-Jogo:
+POST `/auth/login`
+Retorna:
 
 ```
-POST /ranking/start
-GET /question/generate
-POST /session-question/track
-POST /ranking/save
+access_token
+refresh_token
 ```
 
-Ranking:
+POST `/auth/refresh`
+Gera novo access token e novo refresh token.
 
-```
-GET /ranking/elo/top
-GET /ranking/elo/me
-GET /ranking/top
-```
+POST `/auth/logout`
+Revoga refresh token.
 
-Temporadas:
-
-```
-GET /seasons/current
-POST /seasons/start
-```
+GET `/auth/me`
+Retorna dados do usuário autenticado.
 
 ---
 
-# 📈 Roadmap futuro
+## Sistema de Tokens
 
-* Modo duelo entre jogadores
-* Ranking por amigos
-* Replay de questões
-* Gráfico de evolução de Elo
-* Sistema de conquistas
-* Matchmaking
+Access token:
+
+* curta duração
+* usado em todas as requisições
+
+Refresh token:
+
+* longa duração
+* armazenado no banco
+* rotacionado a cada refresh
+
+Fluxo:
+
+1. Login → access + refresh
+2. Access expira
+3. App chama `/auth/refresh`
+4. Backend retorna novo par
+
+---
+
+## Geração de exercícios
+
+O módulo `game/generator.py` cria funções simbólicas por nível:
+
+* Polinomiais
+* Trigonométricas
+* Exponenciais
+* Composição e produto
+
+Cada exercício retorna:
+
+* expressão
+* derivada correta
+* LaTeX
+* nível
+
+---
+
+## Validação de respostas
+
+O módulo `validator.py`:
+
+1. Converte resposta para expressão simbólica
+2. Simplifica diferença
+3. Verifica equivalência matemática
+
+Pontuação depende de:
+
+* nível
+* tempo de resposta
+
+---
+
+## Próximos passos planejados
+
+* GameSession
+* Attempt
+* Leaderboard
+* Ranking por temporada
+* Daily challenge
+* Estatísticas do usuário
+
+---
+
+## Boas práticas adotadas
+
+* Tokens seguros com hash
+* Refresh rotation
+* Parsing simbólico controlado
+* Separação por domínio
+* Services desacoplados de routers
 
 ---
 

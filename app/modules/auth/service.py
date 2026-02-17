@@ -1,13 +1,11 @@
-# app/services/auth.py
+# app/modules/auth/service.py
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
-from app.models.user import User
-from app.models.user_stats import UserStats
-from app.schemas.auth import UserCreate, UserLogin, TokenPair
+from app.modules.users.models import User
+from app.modules.auth.schemas import UserCreate, UserLogin, TokenPair
 from app.core.security import create_access_token
-from app.services.refresh_tokens import issue_refresh_token
-from app.services.elo import DEFAULT_RATING
+from app.modules.auth.refresh_tokens import issue_refresh_token
 import re
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -51,10 +49,6 @@ def register_user(db: Session, user_data: UserCreate):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-
-    stats = UserStats(user_id=new_user.id, rating=DEFAULT_RATING)
-    db.add(stats)
-    db.commit()
 
     return new_user
 

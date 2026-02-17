@@ -1,4 +1,4 @@
-# app/services/generator.py
+# app/modules/game/generator.py
 import random
 import sympy as sp
 import uuid

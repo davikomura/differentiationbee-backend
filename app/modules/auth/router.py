@@ -4,14 +4,11 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 
 from app.db.session import get_db
-from app.schemas.auth import UserCreate, UserLogin, UserRead, TokenPair, RefreshRequest, LogoutRequest
-from app.services.auth import register_user, authenticate_user, create_tokens_for_user
+from app.modules.auth.schemas import UserCreate, UserLogin, UserRead, TokenPair, RefreshRequest, LogoutRequest
+from app.modules.auth.service import register_user, authenticate_user, create_tokens_for_user
 from app.core.security import decode_access_token, create_access_token
-from app.models.user import User
-from app.models.user_stats import UserStats
-from app.services.elo import get_arena_for_rating, arena_progress
-from app.services.refresh_tokens import rotate_refresh_token, revoke_refresh_token
-from app.core.ratelimit import enforce_rate_limit, RateLimit
+from app.modules.users.models import User
+from app.modules.auth.refresh_tokens import rotate_refresh_token, revoke_refresh_token
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -22,7 +19,6 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenPair)
 def login(request: Request, login_data: UserLogin, db: Session = Depends(get_db)):
-    enforce_rate_limit(request, "auth_login", RateLimit(limit=8, window_seconds=60))
     user = authenticate_user(db, login_data)
     return create_tokens_for_user(db, user)
 
@@ -54,12 +50,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         )
     return user
 
-@router.post("/refresh")
-def refresh(request: Request, payload: RefreshRequest, db: Session = Depends(get_db)):
-    enforce_rate_limit(request, "auth_refresh", RateLimit(limit=20, window_seconds=60))
-    user_id = rotate_refresh_token(db, payload.refresh_token)
+@router.post("/refresh", response_model=TokenPair)
+def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
+    user_id, new_refresh = rotate_refresh_token(db, payload.refresh_token)
     access = create_access_token(subject=str(user_id))
-    return {"access_token": access, "token_type": "bearer"}
+    return TokenPair(access_token=access, refresh_token=new_refresh)
 
 @router.post("/logout")
 def logout(payload: LogoutRequest, db: Session = Depends(get_db)):
@@ -68,23 +63,9 @@ def logout(payload: LogoutRequest, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    stats = db.query(UserStats).filter(UserStats.user_id == current_user.id).first()
-    rating = int(stats.rating) if stats else 100
-    arena = get_arena_for_rating(rating)
-    prog = arena_progress(rating, arena)
     return {
         "id": current_user.id,
         "username": current_user.username,
         "email": current_user.email,
         "created_at": current_user.created_at.isoformat(),
-        "elo": {
-            "rating": rating,
-            "arena": {
-                "index": arena.index,
-                "name": arena.name,
-                "min_rating": prog["min"],
-                "max_rating": prog["max"],
-                "progress": prog["pct"],
-            },
-        },
     }

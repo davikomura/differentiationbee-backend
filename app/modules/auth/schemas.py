@@ -1,4 +1,4 @@
-# app/schemas/auth.py
+# app/modules/auth/schemas.py
 from pydantic import BaseModel, EmailStr, StringConstraints
 from typing import Annotated
 from datetime import datetime

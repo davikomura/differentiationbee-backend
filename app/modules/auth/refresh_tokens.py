@@ -1,4 +1,4 @@
-# app/services/refresh_tokens.py
+# app/modules/auth/refresh_tokens.py
 from __future__ import annotations
 import os
 import secrets
@@ -6,7 +6,7 @@ import hashlib
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.models.refresh_token import RefreshToken
+from app.modules.auth.models import RefreshToken
 
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS") or "30")
 
@@ -23,9 +23,10 @@ def issue_refresh_token(db: Session, user_id: int) -> str:
     db.commit()
     return raw
 
-def rotate_refresh_token(db: Session, raw_token: str) -> int:
+def rotate_refresh_token(db: Session, raw_token: str) -> tuple[int, str]:
     token_hash = _hash_token(raw_token)
     rt = db.query(RefreshToken).filter(RefreshToken.token_hash == token_hash).first()
+
     if not rt or rt.revoked:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token inválido")
 
@@ -35,7 +36,10 @@ def rotate_refresh_token(db: Session, raw_token: str) -> int:
 
     rt.revoked = True
     db.commit()
-    return int(rt.user_id)
+
+    new_raw = issue_refresh_token(db, rt.user_id)
+
+    return int(rt.user_id), new_raw
 
 def revoke_refresh_token(db: Session, raw_token: str) -> None:
     token_hash = _hash_token(raw_token)
