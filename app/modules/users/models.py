@@ -12,30 +12,8 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
-    sessions = relationship(
-        "GameSession",
-        back_populates="user",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-
-    stats = relationship(
-        "UserStats",
-        back_populates="user",
-        uselist=False,
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-
-    season_stats = relationship(
-        "UserSeasonStats",
-        back_populates="user",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-
     refresh_tokens = relationship(
-        "RefreshToken",
+        "app.modules.auth.models.RefreshToken",
         back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,
