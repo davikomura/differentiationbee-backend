@@ -30,6 +30,13 @@ class SeasonTranslation(Base):
     description = Column(String, nullable=True)
 
     season = relationship("Season", back_populates="translations")
+    
+    sessions = relationship(
+        "GameSession",
+        back_populates="season",
+        cascade="all",
+        passive_deletes=True,
+    )
 
     __table_args__ = (
         UniqueConstraint("season_id", "locale", name="uq_season_locale"),

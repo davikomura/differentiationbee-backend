@@ -8,6 +8,8 @@ class GameSession(Base):
     __tablename__ = "game_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
+    
+    season_id = Column(Integer, ForeignKey("seasons.id", ondelete="RESTRICT"), nullable=False, index=True)
 
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 

@@ -1,11 +1,12 @@
 # app/modules/auth/service.py
+import os
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from app.modules.users.models import User
 from app.modules.auth.schemas import UserCreate, UserLogin, TokenPair
 from app.core.security import create_access_token
-from app.modules.auth.refresh_tokens import issue_refresh_token
+from app.modules.auth.refresh_tokens import issue_refresh_token_for_login
 import re
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -56,7 +57,7 @@ def authenticate_user(db: Session, login_data: UserLogin):
     username = login_data.username.strip().lower()
 
     user = db.query(User).filter(User.username == username).first()
-    hashed = user.hashed_password if user else "$2b$12$invalidhashfake..."
+    hashed = user.hashed_password if user else os.getenv("DUMMY_BCRYPT_HASH")
     pwd_ok = verify_password(login_data.password, hashed)
 
     if not user or not pwd_ok:
@@ -69,5 +70,7 @@ def authenticate_user(db: Session, login_data: UserLogin):
 
 def create_tokens_for_user(db: Session, user: User) -> TokenPair:
     access = create_access_token(subject=str(user.id))
-    refresh = issue_refresh_token(db, user.id)
+
+    refresh = issue_refresh_token_for_login(db, user.id)
+
     return TokenPair(access_token=access, refresh_token=refresh)

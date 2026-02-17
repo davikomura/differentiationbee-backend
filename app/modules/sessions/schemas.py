@@ -11,6 +11,7 @@ class GameSessionCreate(BaseModel):
 
 class GameSessionRead(BaseModel):
     id: int
+    season_id: int
     mode: str
     level: Optional[int]
     seed: Optional[int]

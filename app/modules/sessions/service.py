@@ -7,13 +7,30 @@ from datetime import datetime, timezone
 from app.modules.sessions.models import GameSession
 from app.modules.tiers.service import apply_points_change_with_soft_demotion, get_tier_for_points, tier_to_read
 from app.modules.users.models import User
+from app.modules.seasons.service import get_active_season
 
-def start_session(db: Session, user_id: int, mode: str = "practice", level: int | None = None, seed: int | None = None) -> GameSession:
+def start_session(
+    db: Session,
+    user_id: int,
+    mode: str = "practice",
+    level: int | None = None,
+    seed: int | None = None,
+) -> GameSession:
     active = db.query(GameSession).filter(GameSession.user_id == user_id, GameSession.is_active == True).first()
     if active:
         raise HTTPException(status_code=409, detail="Já existe uma sessão ativa para este usuário")
 
-    s = GameSession(user_id=user_id, mode=mode, level=level, seed=seed)
+    season = get_active_season(db)
+    if not season:
+        raise HTTPException(status_code=409, detail="Não existe season ativa no momento")
+
+    s = GameSession(
+        user_id=user_id,
+        season_id=season.id,
+        mode=mode,
+        level=level,
+        seed=seed,
+    )
     db.add(s)
     db.commit()
     db.refresh(s)
