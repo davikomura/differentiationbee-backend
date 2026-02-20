@@ -1,3 +1,4 @@
+# app/modules/seasons/service.py
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime, timezone
@@ -30,7 +31,23 @@ def _pick_translation(season: Season, locale: str) -> SeasonTranslation | None:
 
     return season.translations[0]
 
-def create_season(db: Session, data: SeasonCreate) -> Season:
+def _season_to_read_dict(s: Season, locale: str | None) -> dict:
+    loc = _normalize_locale(locale)
+    tr = _pick_translation(s, loc)
+
+    title = tr.title if tr else s.slug
+    description = tr.description if tr else None
+
+    return {
+        "id": s.id,
+        "slug": s.slug,
+        "starts_at": s.starts_at,
+        "ends_at": s.ends_at,
+        "title": title,
+        "description": description,
+    }
+
+def create_season(db: Session, data: SeasonCreate, locale: str | None = None) -> dict:
     if data.ends_at <= data.starts_at:
         raise HTTPException(status_code=400, detail="ends_at deve ser maior que starts_at")
 
@@ -53,6 +70,7 @@ def create_season(db: Session, data: SeasonCreate) -> Season:
         if key in seen_locales:
             raise HTTPException(status_code=400, detail=f"Locale duplicado em translations: {tr.locale}")
         seen_locales.add(key)
+
         s.translations.append(
             SeasonTranslation(
                 locale=tr.locale,
@@ -64,7 +82,8 @@ def create_season(db: Session, data: SeasonCreate) -> Season:
     db.add(s)
     db.commit()
     db.refresh(s)
-    return s
+
+    return _season_to_read_dict(s, locale)
 
 def get_active_season(db: Session) -> Season | None:
     now = datetime.now(timezone.utc)

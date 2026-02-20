@@ -3,6 +3,8 @@ from pydantic import BaseModel, EmailStr, StringConstraints
 from typing import Annotated
 from datetime import datetime
 
+from app.modules.users.roles import UserRole
+
 UsernameStr = Annotated[str, StringConstraints(min_length=3, max_length=30)]
 PasswordStr = Annotated[str, StringConstraints(min_length=8)]
 
@@ -19,6 +21,7 @@ class UserRead(BaseModel):
     id: int
     username: str
     email: EmailStr
+    role: UserRole
     created_at: datetime
 
     class Config:

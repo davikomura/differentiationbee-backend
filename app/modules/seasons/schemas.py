@@ -1,4 +1,5 @@
-from pydantic import BaseModel, StringConstraints
+# app/modules/seasons/schemas.py
+from pydantic import BaseModel, ConfigDict, StringConstraints
 from typing import Annotated, Optional, List
 from datetime import datetime
 
@@ -18,6 +19,8 @@ class SeasonCreate(BaseModel):
     translations: List[SeasonTranslationCreate]
 
 class SeasonRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     slug: str
     starts_at: datetime

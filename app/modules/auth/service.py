@@ -9,6 +9,8 @@ from app.core.security import create_access_token
 from app.modules.auth.refresh_tokens import issue_refresh_token_for_login
 import re
 
+from app.modules.users.roles import UserRole
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
@@ -46,6 +48,7 @@ def register_user(db: Session, user_data: UserCreate):
         username=user_data.username,
         email=user_data.email,
         hashed_password=hash_password(user_data.password),
+        role=UserRole.user.value,
     )
     db.add(new_user)
     db.commit()

@@ -74,6 +74,7 @@ def me(request: Request, current_user: User = Depends(get_current_user), db: Ses
         "id": current_user.id,
         "username": current_user.username,
         "email": current_user.email,
+        "role": getattr(current_user, "role", "user"),
         "points": points,
         "tier": tier,
         "created_at": current_user.created_at.isoformat(),
