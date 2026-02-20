@@ -45,8 +45,34 @@ def generate_random_function(level: int, seed: int = None):
         expr = sp.log(inner) + x * sp.cos(x)
     elif level == 10:
         expr = (x * sp.exp(x)) * sp.sin(x**2 + 1) + sp.log(x**2 + sp.sin(x) + 3)
+
+    elif level == 11:
+        a = random.randint(1, 3)
+        b = random.randint(1, 4)
+        c = random.randint(0, 3)
+
+        d = random.randint(1, 3)
+        e = random.randint(0, 4)
+        f = random.randint(0, 3)
+
+        exp_inner = a * x**2 + b * x + c
+        trig_inner = d * x**2 + e * x + f
+
+        expr = sp.exp(exp_inner) * sp.sin(trig_inner) + poly_term(3, (-2, 2))
+
+    elif level == 12:
+        a = random.randint(1, 4)
+        b = random.randint(1, 5)
+        c = random.randint(1, 3)
+        d = random.randint(1, 4)
+
+        numerator = sp.log(x**2 + a * x + b) + x * sp.exp(c * x)
+        denominator = sp.sin(x**2 + d) + sp.Rational(11, 10)
+
+        expr = numerator / denominator
+
     else:
-        raise ValueError("Level must be between 1 and 10.")
+        raise ValueError("Level must be between 1 and 12.")
 
     derivative = sp.diff(expr, x)
 

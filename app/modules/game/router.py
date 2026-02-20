@@ -20,4 +20,5 @@ def get_question(payload: IssueQuestionRequest, db: Session = Depends(get_db), c
         "expression_str": iq.expression_str,
         "expression_latex": iq.expression_latex,
         "issued_at": iq.issued_at,
+        "time_limit_ms": iq.time_limit_ms,
     }

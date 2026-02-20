@@ -17,13 +17,12 @@ class IssuedQuestion(Base):
     expression_str = Column(Text, nullable=False)
     expression_latex = Column(Text, nullable=True)
 
-    # guardamos a derivada correta aqui (NÃO mandamos pro client)
     derivative_str = Column(Text, nullable=False)
     derivative_latex = Column(Text, nullable=True)
 
+    time_limit_ms = Column(Integer, nullable=False, default=60_000)
     issued_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
-    # evita reuso / replay
     answered = Column(Boolean, default=False, nullable=False)
     answered_at = Column(DateTime(timezone=True), nullable=True)
 
