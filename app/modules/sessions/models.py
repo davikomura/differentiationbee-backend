@@ -41,6 +41,8 @@ class GameSession(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    
+    season = relationship("Season", back_populates="sessions")
 
 Index("ix_game_sessions_user_started", GameSession.user_id, GameSession.started_at)
 Index("ix_game_sessions_active", GameSession.user_id, GameSession.is_active)

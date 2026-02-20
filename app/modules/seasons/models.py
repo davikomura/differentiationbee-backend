@@ -16,6 +16,13 @@ class Season(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     
     translations = relationship("SeasonTranslation", back_populates="season", cascade="all, delete-orphan", passive_deletes=True,)
+    
+    sessions = relationship(
+        "GameSession",
+        back_populates="season",
+        cascade="all",
+        passive_deletes=True,
+    )
 
 Index("ix_seasons_window", Season.starts_at, Season.ends_at)
 
@@ -30,13 +37,6 @@ class SeasonTranslation(Base):
     description = Column(String, nullable=True)
 
     season = relationship("Season", back_populates="translations")
-    
-    sessions = relationship(
-        "GameSession",
-        back_populates="season",
-        cascade="all",
-        passive_deletes=True,
-    )
 
     __table_args__ = (
         UniqueConstraint("season_id", "locale", name="uq_season_locale"),
