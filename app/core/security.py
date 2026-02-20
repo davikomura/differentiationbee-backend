@@ -1,16 +1,18 @@
-# app/core/security.py
-import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from jose import jwt, JWTError, ExpiredSignatureError
+
 from fastapi import HTTPException, status
+from jose import JWTError, ExpiredSignatureError, jwt
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-if not SECRET_KEY:
-    raise RuntimeError("JWT_SECRET_KEY não configurada")
+from app.core.i18n import t
+from app.core.settings import get_settings
 
+settings = get_settings()
+
+SECRET_KEY = settings.jwt_secret_key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
+
 
 def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
     now = datetime.now(timezone.utc)
@@ -22,29 +24,31 @@ def create_access_token(subject: str, expires_delta: Optional[timedelta] = None)
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-def decode_access_token(token: str) -> dict:
+
+def decode_access_token(token: str, locale: str = "en") -> dict:
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token expirado",
+            detail=t("token_expired", locale),
             headers={"WWW-Authenticate": "Bearer"},
         )
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido",
+            detail=t("token_invalid", locale),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-def extract_subject_from_token(token: str) -> str:
-    payload = decode_access_token(token)
+
+def extract_subject_from_token(token: str, locale: str = "en") -> str:
+    payload = decode_access_token(token, locale)
     sub = payload.get("sub")
     if not sub:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token malformado (sem 'sub')",
+            detail=t("token_malformed_sub", locale),
             headers={"WWW-Authenticate": "Bearer"},
         )
     return str(sub)

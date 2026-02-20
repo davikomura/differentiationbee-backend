@@ -1,13 +1,15 @@
-# app/modules/sessions/service.py
 import math
-from sqlalchemy.orm import Session
-from fastapi import HTTPException
 from datetime import datetime, timezone
 
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
+from app.core.i18n import t
+from app.modules.seasons.service import get_active_season
 from app.modules.sessions.models import GameSession
 from app.modules.tiers.service import apply_points_change_with_soft_demotion, get_tier_for_points, tier_to_read
 from app.modules.users.models import User
-from app.modules.seasons.service import get_active_season
+
 
 def start_session(
     db: Session,
@@ -15,14 +17,15 @@ def start_session(
     mode: str = "practice",
     level: int | None = None,
     seed: int | None = None,
+    locale: str = "en",
 ) -> GameSession:
-    active = db.query(GameSession).filter(GameSession.user_id == user_id, GameSession.is_active == True).first()
+    active = db.query(GameSession).filter(GameSession.user_id == user_id, GameSession.is_active == True).first()  # noqa: E712
     if active:
-        raise HTTPException(status_code=409, detail="Já existe uma sessão ativa para este usuário")
+        raise HTTPException(status_code=409, detail=t("active_session_exists", locale))
 
     season = get_active_season(db)
     if not season:
-        raise HTTPException(status_code=409, detail="Não existe season ativa no momento")
+        raise HTTPException(status_code=409, detail=t("no_active_season", locale))
 
     s = GameSession(
         user_id=user_id,
@@ -35,6 +38,7 @@ def start_session(
     db.commit()
     db.refresh(s)
     return s
+
 
 def compute_session_points_delta(total_score: int, total_questions: int, correct_answers: int) -> int:
     if total_questions <= 0:
@@ -53,14 +57,15 @@ def compute_session_points_delta(total_score: int, total_questions: int, correct
     delta = max(-80, min(60, delta))
     return int(delta)
 
+
 def finish_session(db: Session, user_id: int, session_id: int, locale: str = "en") -> dict:
     s = db.query(GameSession).filter(GameSession.id == session_id, GameSession.user_id == user_id).first()
     if not s:
-        raise HTTPException(status_code=404, detail="Sessão não encontrada")
+        raise HTTPException(status_code=404, detail=t("session_not_found", locale))
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        raise HTTPException(status_code=404, detail=t("user_not_found", locale))
 
     points_before = int(getattr(user, "points", 0))
     tier_before = tier_to_read(get_tier_for_points(db, points_before), locale)
@@ -103,11 +108,13 @@ def finish_session(db: Session, user_id: int, session_id: int, locale: str = "en
         "tier_after": tier_after,
     }
 
-def get_session(db: Session, user_id: int, session_id: int) -> GameSession:
+
+def get_session(db: Session, user_id: int, session_id: int, locale: str = "en") -> GameSession:
     s = db.query(GameSession).filter(GameSession.id == session_id, GameSession.user_id == user_id).first()
     if not s:
-        raise HTTPException(status_code=404, detail="Sessão não encontrada")
+        raise HTTPException(status_code=404, detail=t("session_not_found", locale))
     return s
+
 
 def list_sessions(db: Session, user_id: int, limit: int = 20) -> list[GameSession]:
     return (

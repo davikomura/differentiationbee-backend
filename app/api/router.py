@@ -6,6 +6,9 @@ from app.modules.tiers.router import router as tiers_router
 from app.modules.sessions.router import router as sessions_router
 from app.modules.attempts.router import router as attempts_router
 from app.modules.game.router import router as game_router
+from app.modules.leaderboard.router import router as leaderboard_router
+from app.modules.stats.router import router as stats_router
+from app.modules.health.router import router as health_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router, prefix="/auth", tags=["Auth"])
@@ -14,3 +17,6 @@ api_router.include_router(tiers_router, prefix="/tiers", tags=["Tiers"])
 api_router.include_router(sessions_router, prefix="/sessions", tags=["Sessions"])
 api_router.include_router(attempts_router, prefix="/attempts", tags=["Attempts"])
 api_router.include_router(game_router, prefix="/game", tags=["Game"])
+api_router.include_router(leaderboard_router, prefix="/leaderboard", tags=["Leaderboard"])
+api_router.include_router(stats_router, prefix="/stats", tags=["Stats"])
+api_router.include_router(health_router, tags=["Health"])

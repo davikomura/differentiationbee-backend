@@ -1,12 +1,13 @@
 from pydantic import BaseModel, StringConstraints
 from typing import Annotated, Optional
 from datetime import datetime
+from pydantic import Field
 
 ModeStr = Annotated[str, StringConstraints(min_length=3, max_length=20)]
 
 class GameSessionCreate(BaseModel):
     mode: ModeStr = "practice"
-    level: Optional[int] = None
+    level: Optional[int] = Field(default=None, ge=1, le=12)
     seed: Optional[int] = None
 
 class GameSessionRead(BaseModel):

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
+from app.core.i18n import get_request_locale
 from app.db.session import get_db
 from app.modules.auth.router import get_current_user
 from app.modules.users.models import User
@@ -20,6 +21,7 @@ def create(payload: AttemptCreate, request: Request, db: Session = Depends(get_d
         user_answer=payload.user_answer,
         time_taken_ms=payload.time_taken_ms,
         use_latex=payload.use_latex,
+        locale=get_request_locale(request),
     )
 
     return {"attempt": attempt, "correct_derivative_latex": correct_latex}

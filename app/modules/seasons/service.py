@@ -1,35 +1,40 @@
-# app/modules/seasons/service.py
-from sqlalchemy.orm import Session
-from fastapi import HTTPException
 from datetime import datetime, timezone
 
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
+from app.core.i18n import SUPPORTED_LOCALES, t
 from app.modules.seasons.models import Season, SeasonTranslation
 from app.modules.seasons.schemas import SeasonCreate
+
 
 def _normalize_locale(locale: str | None) -> str:
     return (locale or "en").strip()
 
+
 def _base_lang(locale: str) -> str:
     return locale.split("-")[0]
+
 
 def _pick_translation(season: Season, locale: str) -> SeasonTranslation | None:
     if not season.translations:
         return None
 
-    for t in season.translations:
-        if t.locale.lower() == locale.lower():
-            return t
+    for tr in season.translations:
+        if tr.locale.lower() == locale.lower():
+            return tr
 
     base = _base_lang(locale).lower()
-    for t in season.translations:
-        if _base_lang(t.locale).lower() == base:
-            return t
+    for tr in season.translations:
+        if _base_lang(tr.locale).lower() == base:
+            return tr
 
-    for t in season.translations:
-        if t.locale.lower() == "en":
-            return t
+    for tr in season.translations:
+        if tr.locale.lower() == "en":
+            return tr
 
     return season.translations[0]
+
 
 def _season_to_read_dict(s: Season, locale: str | None) -> dict:
     loc = _normalize_locale(locale)
@@ -47,16 +52,20 @@ def _season_to_read_dict(s: Season, locale: str | None) -> dict:
         "description": description,
     }
 
+
 def create_season(db: Session, data: SeasonCreate, locale: str | None = None) -> dict:
     if data.ends_at <= data.starts_at:
-        raise HTTPException(status_code=400, detail="ends_at deve ser maior que starts_at")
+        raise HTTPException(status_code=400, detail=t("season_ends_after_start", locale))
 
     exists = db.query(Season).filter(Season.slug == data.slug).first()
     if exists:
-        raise HTTPException(status_code=409, detail="Season com esse slug já existe")
+        raise HTTPException(status_code=409, detail=t("season_slug_exists", locale))
 
     if not data.translations:
-        raise HTTPException(status_code=400, detail="Informe ao menos uma tradução em translations")
+        raise HTTPException(status_code=400, detail=t("season_translation_required", locale))
+
+    required_locales = set(SUPPORTED_LOCALES)
+    incoming_locales: set[str] = set()
 
     s = Season(
         slug=data.slug,
@@ -64,19 +73,26 @@ def create_season(db: Session, data: SeasonCreate, locale: str | None = None) ->
         ends_at=data.ends_at,
     )
 
-    seen_locales = set()
     for tr in data.translations:
-        key = tr.locale.lower()
-        if key in seen_locales:
-            raise HTTPException(status_code=400, detail=f"Locale duplicado em translations: {tr.locale}")
-        seen_locales.add(key)
-
+        normalized = tr.locale.strip()
+        if normalized not in SUPPORTED_LOCALES:
+            raise HTTPException(status_code=400, detail=t("season_translation_unsupported", locale, locale_value=normalized))
+        if normalized in incoming_locales:
+            raise HTTPException(status_code=400, detail=t("season_translation_duplicate", locale, locale_value=normalized))
+        incoming_locales.add(normalized)
         s.translations.append(
             SeasonTranslation(
-                locale=tr.locale,
+                locale=normalized,
                 title=tr.title,
                 description=tr.description,
             )
+        )
+
+    missing = sorted(required_locales - incoming_locales)
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=t("season_translation_missing_required", locale, missing=", ".join(missing)),
         )
 
     db.add(s)
@@ -84,6 +100,7 @@ def create_season(db: Session, data: SeasonCreate, locale: str | None = None) ->
     db.refresh(s)
 
     return _season_to_read_dict(s, locale)
+
 
 def get_active_season(db: Session) -> Season | None:
     now = datetime.now(timezone.utc)
@@ -93,6 +110,7 @@ def get_active_season(db: Session) -> Season | None:
         .order_by(Season.starts_at.desc())
         .first()
     )
+
 
 def get_active_season_localized(db: Session, locale: str | None) -> dict | None:
     s = get_active_season(db)

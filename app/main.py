@@ -1,28 +1,36 @@
-# app/main.py
-import os
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.router import api_router
 
-def _parse_origins(value: str | None) -> list[str]:
-    if not value:
-        return []
-    parts = [p.strip() for p in value.split(",")]
-    return [p for p in parts if p]
+from app.api.router import api_router
+from app.core.middleware import InMemoryRateLimitMiddleware, RequestLogMiddleware
+from app.core.settings import get_settings
+
+settings = get_settings()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 app = FastAPI(
     title="Differentiation Bee",
-    version="1.2.0",
+    version="1.0.0",
 )
-
-origins = _parse_origins(os.getenv("CORS_ALLOW_ORIGINS")) or ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.cors_allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(
+    InMemoryRateLimitMiddleware,
+    max_requests=settings.rate_limit_requests,
+    window_seconds=settings.rate_limit_window_seconds,
+)
+app.add_middleware(RequestLogMiddleware)
 
 app.include_router(api_router)

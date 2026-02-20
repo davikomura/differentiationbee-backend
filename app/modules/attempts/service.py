@@ -1,12 +1,14 @@
 # app/modules/attempts/service.py
-from sqlalchemy.orm import Session
-from fastapi import HTTPException
 from datetime import datetime, timezone
 
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
+from app.core.i18n import t
 from app.modules.attempts.models import Attempt
 from app.modules.game.models import IssuedQuestion
-from app.modules.sessions.models import GameSession
 from app.modules.game.validator import validate_answer
+from app.modules.sessions.models import GameSession
 
 
 def create_attempt_from_question(
@@ -16,9 +18,10 @@ def create_attempt_from_question(
     user_answer: str,
     time_taken_ms: int,
     use_latex: bool,
+    locale: str = "en",
 ) -> tuple[Attempt, str]:
     if time_taken_ms <= 0 or time_taken_ms > 10 * 60 * 1000:
-        raise HTTPException(status_code=400, detail="time_taken_ms inválido")
+        raise HTTPException(status_code=400, detail=t("invalid_time_taken_ms", locale))
 
     q = (
         db.query(IssuedQuestion)
@@ -26,16 +29,18 @@ def create_attempt_from_question(
         .first()
     )
     if not q:
-        raise HTTPException(status_code=404, detail="Questão não encontrada")
+        raise HTTPException(status_code=404, detail=t("question_not_found", locale))
 
     if q.answered:
-        raise HTTPException(status_code=409, detail="Questão já foi respondida")
+        raise HTTPException(status_code=409, detail=t("question_already_answered", locale))
+    if time_taken_ms > q.time_limit_ms:
+        raise HTTPException(status_code=400, detail=t("question_time_exceeded", locale))
 
     s = db.query(GameSession).filter(GameSession.id == q.session_id, GameSession.user_id == user_id).first()
     if not s:
-        raise HTTPException(status_code=404, detail="Sessão não encontrada")
+        raise HTTPException(status_code=404, detail=t("session_not_found", locale))
     if not s.is_active:
-        raise HTTPException(status_code=400, detail="Sessão encerrada")
+        raise HTTPException(status_code=400, detail=t("session_closed", locale))
 
     result = validate_answer(
         correct_derivative_str=q.derivative_str,

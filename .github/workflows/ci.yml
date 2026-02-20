@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+      - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+      - name: Run tests
+      env:
+        DATABASE_URL: sqlite+pysqlite:///:memory:
+        JWT_SECRET_KEY: ci-secret
+        REFRESH_TOKEN_EXPIRE_DAYS: "30"
+        MAX_REFRESH_TOKENS_PER_USER: "3"
+      run: pytest -q
