@@ -5,7 +5,7 @@ from pydantic import Field
 
 class IssueQuestionRequest(BaseModel):
     session_id: int
-    level: int = Field(ge=1, le=12)
+    level: int | None = Field(default=None, ge=1, le=12)
 
 class IssuedQuestionRead(BaseModel):
     question_id: int

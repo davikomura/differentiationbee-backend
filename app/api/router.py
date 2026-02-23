@@ -9,6 +9,7 @@ from app.modules.game.router import router as game_router
 from app.modules.leaderboard.router import router as leaderboard_router
 from app.modules.stats.router import router as stats_router
 from app.modules.health.router import router as health_router
+from app.modules.competitive.router import router as competitive_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router, prefix="/auth", tags=["Auth"])
@@ -20,3 +21,4 @@ api_router.include_router(game_router, prefix="/game", tags=["Game"])
 api_router.include_router(leaderboard_router, prefix="/leaderboard", tags=["Leaderboard"])
 api_router.include_router(stats_router, prefix="/stats", tags=["Stats"])
 api_router.include_router(health_router, tags=["Health"])
+api_router.include_router(competitive_router, prefix="/competitive", tags=["Competitive"])

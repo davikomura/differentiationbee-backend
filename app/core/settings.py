@@ -44,6 +44,13 @@ class Settings:
         self.rate_limit_requests = _get_int_env("RATE_LIMIT_REQUESTS", 120)
         self.rate_limit_window_seconds = _get_int_env("RATE_LIMIT_WINDOW_SECONDS", 60)
 
+        self.state_backend = (os.getenv("STATE_BACKEND") or "inmemory").strip().lower()
+        if self.state_backend not in {"inmemory", "redis"}:
+            raise RuntimeError("STATE_BACKEND deve ser 'inmemory' ou 'redis'")
+
+        redis_url = os.getenv("REDIS_URL")
+        self.redis_url = redis_url.strip() if redis_url and redis_url.strip() else None
+
 
 @lru_cache
 def get_settings() -> Settings:

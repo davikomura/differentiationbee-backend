@@ -1,0 +1,2159 @@
+{
+  "components": {
+    "schemas": {
+      "AdvancedStatsRead": {
+        "properties": {
+          "accuracy_pct": {
+            "title": "Accuracy Pct",
+            "type": "number"
+          },
+          "average_time_ms": {
+            "title": "Average Time Ms",
+            "type": "integer"
+          },
+          "average_time_ms_by_level": {
+            "items": {
+              "$ref": "#/components/schemas/LevelTimeStat"
+            },
+            "title": "Average Time Ms By Level",
+            "type": "array"
+          },
+          "best_score": {
+            "title": "Best Score",
+            "type": "integer"
+          },
+          "best_streak_days": {
+            "title": "Best Streak Days",
+            "type": "integer"
+          },
+          "correct_attempts": {
+            "title": "Correct Attempts",
+            "type": "integer"
+          },
+          "current_streak_days": {
+            "title": "Current Streak Days",
+            "type": "integer"
+          },
+          "total_attempts": {
+            "title": "Total Attempts",
+            "type": "integer"
+          },
+          "total_score": {
+            "title": "Total Score",
+            "type": "integer"
+          },
+          "total_sessions": {
+            "title": "Total Sessions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_sessions",
+          "total_attempts",
+          "correct_attempts",
+          "accuracy_pct",
+          "total_score",
+          "best_score",
+          "average_time_ms",
+          "current_streak_days",
+          "best_streak_days",
+          "average_time_ms_by_level"
+        ],
+        "title": "AdvancedStatsRead",
+        "type": "object"
+      },
+      "AttemptCreate": {
+        "properties": {
+          "question_id": {
+            "title": "Question Id",
+            "type": "integer"
+          },
+          "time_taken_ms": {
+            "title": "Time Taken Ms",
+            "type": "integer"
+          },
+          "use_latex": {
+            "default": false,
+            "title": "Use Latex",
+            "type": "boolean"
+          },
+          "user_answer": {
+            "maxLength": 800,
+            "minLength": 1,
+            "title": "User Answer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "user_answer",
+          "time_taken_ms"
+        ],
+        "title": "AttemptCreate",
+        "type": "object"
+      },
+      "AttemptRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "expression_latex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expression Latex"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_correct": {
+            "title": "Is Correct",
+            "type": "boolean"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "integer"
+          },
+          "time_taken_ms": {
+            "title": "Time Taken Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "session_id",
+          "level",
+          "expression_latex",
+          "is_correct",
+          "score",
+          "time_taken_ms",
+          "created_at"
+        ],
+        "title": "AttemptRead",
+        "type": "object"
+      },
+      "AttemptResult": {
+        "properties": {
+          "attempt": {
+            "$ref": "#/components/schemas/AttemptRead"
+          },
+          "correct_derivative_latex": {
+            "title": "Correct Derivative Latex",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt",
+          "correct_derivative_latex"
+        ],
+        "title": "AttemptResult",
+        "type": "object"
+      },
+      "DailyChallengeRead": {
+        "properties": {
+          "challenge_date": {
+            "title": "Challenge Date",
+            "type": "string"
+          },
+          "expression_latex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expression Latex"
+          },
+          "expression_str": {
+            "title": "Expression Str",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "challenge_date",
+          "level",
+          "expression_str"
+        ],
+        "title": "DailyChallengeRead",
+        "type": "object"
+      },
+      "DailyEvolutionPoint": {
+        "properties": {
+          "accuracy_pct": {
+            "title": "Accuracy Pct",
+            "type": "number"
+          },
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "correct_attempts": {
+            "title": "Correct Attempts",
+            "type": "integer"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "total_score": {
+            "title": "Total Score",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date",
+          "attempts",
+          "correct_attempts",
+          "accuracy_pct",
+          "total_score"
+        ],
+        "title": "DailyEvolutionPoint",
+        "type": "object"
+      },
+      "EvolutionRead": {
+        "properties": {
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/DailyEvolutionPoint"
+            },
+            "title": "Points",
+            "type": "array"
+          }
+        },
+        "required": [
+          "days",
+          "points"
+        ],
+        "title": "EvolutionRead",
+        "type": "object"
+      },
+      "GameSessionCreate": {
+        "properties": {
+          "level": {
+            "anyOf": [
+              {
+                "maximum": 12.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level"
+          },
+          "mode": {
+            "default": "practice",
+            "maxLength": 20,
+            "minLength": 3,
+            "title": "Mode",
+            "type": "string"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          }
+        },
+        "title": "GameSessionCreate",
+        "type": "object"
+      },
+      "GameSessionRead": {
+        "properties": {
+          "correct_answers": {
+            "title": "Correct Answers",
+            "type": "integer"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "season_id": {
+            "title": "Season Id",
+            "type": "integer"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "total_questions": {
+            "title": "Total Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "season_id",
+          "mode",
+          "level",
+          "seed",
+          "started_at",
+          "ended_at",
+          "is_active",
+          "total_questions",
+          "correct_answers"
+        ],
+        "title": "GameSessionRead",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "IssueQuestionRequest": {
+        "properties": {
+          "level": {
+            "anyOf": [
+              {
+                "maximum": 12.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "session_id"
+        ],
+        "title": "IssueQuestionRequest",
+        "type": "object"
+      },
+      "IssuedQuestionRead": {
+        "properties": {
+          "expression_latex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expression Latex"
+          },
+          "expression_str": {
+            "title": "Expression Str",
+            "type": "string"
+          },
+          "issued_at": {
+            "format": "date-time",
+            "title": "Issued At",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "question_id": {
+            "title": "Question Id",
+            "type": "integer"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "integer"
+          },
+          "time_limit_ms": {
+            "title": "Time Limit Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "question_id",
+          "session_id",
+          "level",
+          "expression_str",
+          "issued_at",
+          "time_limit_ms"
+        ],
+        "title": "IssuedQuestionRead",
+        "type": "object"
+      },
+      "LeaderboardEntry": {
+        "properties": {
+          "points": {
+            "title": "Points",
+            "type": "integer"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rank",
+          "user_id",
+          "username",
+          "points"
+        ],
+        "title": "LeaderboardEntry",
+        "type": "object"
+      },
+      "LevelTimeStat": {
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "average_time_ms": {
+            "title": "Average Time Ms",
+            "type": "integer"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "level",
+          "attempts",
+          "average_time_ms"
+        ],
+        "title": "LevelTimeStat",
+        "type": "object"
+      },
+      "LogoutRequest": {
+        "properties": {
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "refresh_token"
+        ],
+        "title": "LogoutRequest",
+        "type": "object"
+      },
+      "MyStatsRead": {
+        "properties": {
+          "accuracy_pct": {
+            "title": "Accuracy Pct",
+            "type": "number"
+          },
+          "average_time_ms": {
+            "title": "Average Time Ms",
+            "type": "integer"
+          },
+          "best_score": {
+            "title": "Best Score",
+            "type": "integer"
+          },
+          "correct_attempts": {
+            "title": "Correct Attempts",
+            "type": "integer"
+          },
+          "total_attempts": {
+            "title": "Total Attempts",
+            "type": "integer"
+          },
+          "total_score": {
+            "title": "Total Score",
+            "type": "integer"
+          },
+          "total_sessions": {
+            "title": "Total Sessions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_sessions",
+          "total_attempts",
+          "correct_attempts",
+          "accuracy_pct",
+          "total_score",
+          "best_score",
+          "average_time_ms"
+        ],
+        "title": "MyStatsRead",
+        "type": "object"
+      },
+      "MyTierRead": {
+        "properties": {
+          "points": {
+            "title": "Points",
+            "type": "integer"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/TierRead"
+          }
+        },
+        "required": [
+          "points",
+          "tier"
+        ],
+        "title": "MyTierRead",
+        "type": "object"
+      },
+      "RankedQueueRequest": {
+        "properties": {
+          "level": {
+            "anyOf": [
+              {
+                "maximum": 12.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level"
+          }
+        },
+        "title": "RankedQueueRequest",
+        "type": "object"
+      },
+      "RankedQueueResponse": {
+        "properties": {
+          "level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "opponent_username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opponent Username"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "message"
+        ],
+        "title": "RankedQueueResponse",
+        "type": "object"
+      },
+      "RankedResolutionRead": {
+        "properties": {
+          "delta_points": {
+            "default": 0,
+            "title": "Delta Points",
+            "type": "integer"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "points_after": {
+            "title": "Points After",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "detail",
+          "points_after"
+        ],
+        "title": "RankedResolutionRead",
+        "type": "object"
+      },
+      "RefreshRequest": {
+        "properties": {
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshRequest",
+        "type": "object"
+      },
+      "SeasonCreate": {
+        "properties": {
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "slug": {
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Slug",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "translations": {
+            "items": {
+              "$ref": "#/components/schemas/SeasonTranslationCreate"
+            },
+            "title": "Translations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "slug",
+          "starts_at",
+          "ends_at",
+          "translations"
+        ],
+        "title": "SeasonCreate",
+        "type": "object"
+      },
+      "SeasonLeaderboardEntry": {
+        "properties": {
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "sessions_played": {
+            "title": "Sessions Played",
+            "type": "integer"
+          },
+          "total_score": {
+            "title": "Total Score",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rank",
+          "user_id",
+          "username",
+          "total_score",
+          "sessions_played"
+        ],
+        "title": "SeasonLeaderboardEntry",
+        "type": "object"
+      },
+      "SeasonRead": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "starts_at",
+          "ends_at",
+          "title"
+        ],
+        "title": "SeasonRead",
+        "type": "object"
+      },
+      "SeasonTranslationCreate": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "locale": {
+            "maxLength": 16,
+            "minLength": 2,
+            "title": "Locale",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "locale",
+          "title"
+        ],
+        "title": "SeasonTranslationCreate",
+        "type": "object"
+      },
+      "SessionFinishResult": {
+        "properties": {
+          "average_time_ms": {
+            "title": "Average Time Ms",
+            "type": "integer"
+          },
+          "delta_points": {
+            "title": "Delta Points",
+            "type": "integer"
+          },
+          "points_after": {
+            "title": "Points After",
+            "type": "integer"
+          },
+          "points_before": {
+            "title": "Points Before",
+            "type": "integer"
+          },
+          "result_summary": {
+            "title": "Result Summary",
+            "type": "string"
+          },
+          "session": {
+            "$ref": "#/components/schemas/GameSessionRead"
+          },
+          "tier_after": {
+            "$ref": "#/components/schemas/TierRead"
+          },
+          "tier_before": {
+            "$ref": "#/components/schemas/TierRead"
+          },
+          "time_bonus_points": {
+            "title": "Time Bonus Points",
+            "type": "integer"
+          },
+          "wrong_answers": {
+            "title": "Wrong Answers",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "session",
+          "wrong_answers",
+          "result_summary",
+          "average_time_ms",
+          "time_bonus_points",
+          "delta_points",
+          "points_before",
+          "points_after",
+          "tier_before",
+          "tier_after"
+        ],
+        "title": "SessionFinishResult",
+        "type": "object"
+      },
+      "TierRead": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "max_points": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Points"
+          },
+          "min_points": {
+            "title": "Min Points",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "min_points",
+          "max_points",
+          "title"
+        ],
+        "title": "TierRead",
+        "type": "object"
+      },
+      "TiersListRead": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TierRead"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "TiersListRead",
+        "type": "object"
+      },
+      "TokenPair": {
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          },
+          "token_type": {
+            "default": "bearer",
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token"
+        ],
+        "title": "TokenPair",
+        "type": "object"
+      },
+      "UserCreate": {
+        "properties": {
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          },
+          "username": {
+            "maxLength": 30,
+            "minLength": 3,
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ],
+        "title": "UserCreate",
+        "type": "object"
+      },
+      "UserLogin": {
+        "properties": {
+          "password": {
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          },
+          "username": {
+            "maxLength": 30,
+            "minLength": 3,
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "UserLogin",
+        "type": "object"
+      },
+      "UserRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "role",
+          "created_at"
+        ],
+        "title": "UserRead",
+        "type": "object"
+      },
+      "UserRole": {
+        "enum": [
+          "admin",
+          "moderator",
+          "user"
+        ],
+        "title": "UserRole",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/auth/login"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "title": "Differentiation Bee",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/attempts/": {
+      "post": {
+        "operationId": "create_attempts__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "Attempts"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPair"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Logout",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "me_auth_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "refresh_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPair"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Refresh",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "operationId": "register_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Register",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/competitive/queue": {
+      "post": {
+        "operationId": "queue_ranked_competitive_queue_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RankedQueueRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankedQueueResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Queue Ranked",
+        "tags": [
+          "Competitive"
+        ]
+      }
+    },
+    "/competitive/queue/status": {
+      "get": {
+        "operationId": "queue_status_competitive_queue_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankedQueueResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Queue Status",
+        "tags": [
+          "Competitive"
+        ]
+      }
+    },
+    "/competitive/resolve/{session_id}": {
+      "post": {
+        "operationId": "resolve_ranked_competitive_resolve__session_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankedResolutionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Resolve Ranked",
+        "tags": [
+          "Competitive"
+        ]
+      }
+    },
+    "/game/daily-challenge": {
+      "get": {
+        "operationId": "daily_challenge_game_daily_challenge_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Daily Challenge",
+        "tags": [
+          "Game"
+        ]
+      }
+    },
+    "/game/question": {
+      "post": {
+        "operationId": "get_question_game_question_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueQuestionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssuedQuestionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Question",
+        "tags": [
+          "Game"
+        ]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Healthz",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/leaderboard/global": {
+      "get": {
+        "operationId": "global_rank_leaderboard_global_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LeaderboardEntry"
+                  },
+                  "title": "Response Global Rank Leaderboard Global Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Global Rank",
+        "tags": [
+          "Leaderboard"
+        ]
+      }
+    },
+    "/leaderboard/season/active": {
+      "get": {
+        "operationId": "active_season_rank_leaderboard_season_active_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SeasonLeaderboardEntry"
+                  },
+                  "title": "Response Active Season Rank Leaderboard Season Active Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Active Season Rank",
+        "tags": [
+          "Leaderboard"
+        ]
+      }
+    },
+    "/leaderboard/season/{season_id}": {
+      "get": {
+        "operationId": "season_rank_leaderboard_season__season_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season_id",
+            "required": true,
+            "schema": {
+              "title": "Season Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SeasonLeaderboardEntry"
+                  },
+                  "title": "Response Season Rank Leaderboard Season  Season Id  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Season Rank",
+        "tags": [
+          "Leaderboard"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Metrics",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/seasons/": {
+      "post": {
+        "operationId": "create_seasons__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeasonCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "Seasons"
+        ]
+      }
+    },
+    "/seasons/active": {
+      "get": {
+        "operationId": "active_seasons_active_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SeasonRead"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Active Seasons Active Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Active",
+        "tags": [
+          "Seasons"
+        ]
+      }
+    },
+    "/sessions/": {
+      "get": {
+        "operationId": "list_my_sessions__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GameSessionRead"
+                  },
+                  "title": "Response List My Sessions  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List My",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/sessions/start": {
+      "post": {
+        "operationId": "start_sessions_start_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GameSessionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameSessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Start",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/sessions/{session_id}": {
+      "get": {
+        "operationId": "read_sessions__session_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameSessionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Read",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/sessions/{session_id}/finish": {
+      "post": {
+        "operationId": "finish_sessions__session_id__finish_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionFinishResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Finish",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/stats/me": {
+      "get": {
+        "operationId": "read_my_stats_stats_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyStatsRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Read My Stats",
+        "tags": [
+          "Stats"
+        ]
+      }
+    },
+    "/stats/me/advanced": {
+      "get": {
+        "operationId": "read_my_advanced_stats_stats_me_advanced_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdvancedStatsRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Read My Advanced Stats",
+        "tags": [
+          "Stats"
+        ]
+      }
+    },
+    "/stats/me/evolution": {
+      "get": {
+        "operationId": "read_my_evolution_stats_me_evolution_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 365,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvolutionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Read My Evolution",
+        "tags": [
+          "Stats"
+        ]
+      }
+    },
+    "/tiers/": {
+      "get": {
+        "operationId": "list_all_tiers__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TiersListRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List All",
+        "tags": [
+          "Tiers"
+        ]
+      }
+    },
+    "/tiers/me": {
+      "get": {
+        "operationId": "my_tier_tiers_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyTierRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "My Tier",
+        "tags": [
+          "Tiers"
+        ]
+      }
+    }
+  }
+}

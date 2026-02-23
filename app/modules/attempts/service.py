@@ -10,6 +10,18 @@ from app.modules.game.models import IssuedQuestion
 from app.modules.game.validator import validate_answer
 from app.modules.sessions.models import GameSession
 
+SERVER_TIME_GRACE_MS = 5_000
+
+
+def _apply_diminishing_returns(score: int, level: int) -> int:
+    if score <= 0:
+        return 0
+    if level <= 3:
+        return int(round(score * 0.65))
+    if level <= 5:
+        return int(round(score * 0.85))
+    return int(score)
+
 
 def create_attempt_from_question(
     db: Session,
@@ -35,6 +47,9 @@ def create_attempt_from_question(
         raise HTTPException(status_code=409, detail=t("question_already_answered", locale))
     if time_taken_ms > q.time_limit_ms:
         raise HTTPException(status_code=400, detail=t("question_time_exceeded", locale))
+    elapsed_server_ms = int((datetime.now(timezone.utc) - q.issued_at).total_seconds() * 1000)
+    if elapsed_server_ms > (q.time_limit_ms + SERVER_TIME_GRACE_MS):
+        raise HTTPException(status_code=400, detail=t("server_time_exceeded", locale))
 
     s = db.query(GameSession).filter(GameSession.id == q.session_id, GameSession.user_id == user_id).first()
     if not s:
@@ -52,6 +67,8 @@ def create_attempt_from_question(
 
     is_correct = bool(result.get("is_correct", False))
     score = int(result.get("score", 0))
+    if is_correct:
+        score = _apply_diminishing_returns(score, q.level)
     correct_derivative_latex = result.get("correct_derivative_latex") or (q.derivative_latex or "")
 
     q.answered = True
@@ -76,7 +93,6 @@ def create_attempt_from_question(
     s.total_questions += 1
     if is_correct:
         s.correct_answers += 1
-        s.total_score += score
 
     db.commit()
     db.refresh(attempt)

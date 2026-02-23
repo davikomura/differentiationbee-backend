@@ -1,13 +1,12 @@
 import logging
 import time
-from collections import defaultdict, deque
-from threading import Lock
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from app.core.metrics import record_request
+from app.core.state_backends import get_rate_limit_store
 
 
 logger = logging.getLogger("differentiationbee.api")
@@ -37,28 +36,17 @@ class InMemoryRateLimitMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.max_requests = max_requests
         self.window_seconds = window_seconds
-        self._hits: dict[str, deque[float]] = defaultdict(deque)
-        self._lock = Lock()
+        self._store = get_rate_limit_store()
 
     async def dispatch(self, request: Request, call_next):
         if request.url.path in {"/healthz", "/docs", "/openapi.json", "/redoc"}:
             return await call_next(request)
 
         key = request.client.host if request.client else "unknown"
-        now = time.time()
-
-        with self._lock:
-            bucket = self._hits[key]
-            cutoff = now - self.window_seconds
-            while bucket and bucket[0] < cutoff:
-                bucket.popleft()
-
-            if len(bucket) >= self.max_requests:
-                return JSONResponse(
-                    status_code=429,
-                    content={"detail": "Rate limit excedido. Tente novamente em instantes."},
-                )
-
-            bucket.append(now)
+        if self._store.is_limited(key, self.max_requests, self.window_seconds):
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "Rate limit excedido. Tente novamente em instantes."},
+            )
 
         return await call_next(request)

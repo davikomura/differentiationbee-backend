@@ -133,6 +133,31 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "Refresh token expired",
         "es": "Refresh token expirado",
     },
+    "no_active_season_for_ranked": {
+        "pt-BR": "Nao existe season ativa para partida ranked",
+        "en": "There is no active season for ranked match",
+        "es": "No hay season activa para partida ranked",
+    },
+    "already_in_ranked_queue": {
+        "pt-BR": "Usuario ja esta na fila ranked",
+        "en": "User is already in ranked queue",
+        "es": "Usuario ya esta en la cola ranked",
+    },
+    "no_ranked_match_for_session": {
+        "pt-BR": "Nao existe partida ranked para esta sessao",
+        "en": "No ranked match found for this session",
+        "es": "No existe partida ranked para esta sesion",
+    },
+    "ranked_waiting_opponent": {
+        "pt-BR": "Aguardando oponente finalizar",
+        "en": "Waiting for opponent to finish",
+        "es": "Esperando que el oponente termine",
+    },
+    "server_time_exceeded": {
+        "pt-BR": "Tempo excedido para esta questao (validacao do servidor)",
+        "en": "Time limit exceeded for this question (server validation)",
+        "es": "Tiempo excedido para esta pregunta (validacion del servidor)",
+    },
     "token_expired": {
         "pt-BR": "Token expirado",
         "en": "Token expired",

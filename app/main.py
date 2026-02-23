@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router
+from app.core.error_handlers import register_error_handlers
 from app.core.middleware import InMemoryRateLimitMiddleware, RequestLogMiddleware
 from app.core.settings import get_settings
 
@@ -32,5 +33,6 @@ app.add_middleware(
     window_seconds=settings.rate_limit_window_seconds,
 )
 app.add_middleware(RequestLogMiddleware)
+register_error_handlers(app)
 
 app.include_router(api_router)

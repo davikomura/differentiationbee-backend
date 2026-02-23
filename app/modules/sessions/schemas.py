@@ -21,7 +21,6 @@ class GameSessionRead(BaseModel):
     is_active: bool
     total_questions: int
     correct_answers: int
-    total_score: int
 
     class Config:
         from_attributes = True
@@ -35,6 +34,10 @@ class TierRead(BaseModel):
 
 class SessionFinishResult(BaseModel):
     session: GameSessionRead
+    wrong_answers: int
+    result_summary: str
+    average_time_ms: int
+    time_bonus_points: int
     delta_points: int
     points_before: int
     points_after: int

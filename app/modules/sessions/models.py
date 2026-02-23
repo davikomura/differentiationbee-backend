@@ -46,3 +46,9 @@ class GameSession(Base):
 
 Index("ix_game_sessions_user_started", GameSession.user_id, GameSession.started_at)
 Index("ix_game_sessions_active", GameSession.user_id, GameSession.is_active)
+Index(
+    "uq_game_sessions_one_active_per_user",
+    GameSession.user_id,
+    unique=True,
+    postgresql_where=GameSession.is_active.is_(True),
+)

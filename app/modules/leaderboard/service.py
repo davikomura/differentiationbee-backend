@@ -1,6 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.modules.attempts.models import Attempt
 from app.modules.sessions.models import GameSession
 from app.modules.users.models import User
 
@@ -24,17 +25,19 @@ def global_leaderboard(db: Session, limit: int = 50) -> list[dict]:
 
 
 def season_leaderboard(db: Session, season_id: int, limit: int = 50) -> list[dict]:
+    total_score = func.coalesce(func.sum(Attempt.score), 0)
     rows = (
         db.query(
             User.id.label("user_id"),
             User.username.label("username"),
-            func.coalesce(func.sum(GameSession.total_score), 0).label("total_score"),
-            func.count(GameSession.id).label("sessions_played"),
+            total_score.label("total_score"),
+            func.count(func.distinct(GameSession.id)).label("sessions_played"),
         )
         .join(GameSession, GameSession.user_id == User.id)
+        .outerjoin(Attempt, Attempt.session_id == GameSession.id)
         .filter(GameSession.season_id == season_id)
         .group_by(User.id, User.username)
-        .order_by(func.sum(GameSession.total_score).desc(), User.username.asc())
+        .order_by(total_score.desc(), User.username.asc())
         .limit(limit)
         .all()
     )

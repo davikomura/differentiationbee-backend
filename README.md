@@ -22,7 +22,8 @@ API do Differentiation Bee para autenticacao, geracao e validacao de questoes de
 - Daily challenge deterministico por dia
 - Estatisticas do usuario
 - Healthcheck e metricas basicas
-- Rate limiting por IP em memoria
+- Rate limiting por IP (in-memory ou Redis)
+- Fila ranked com estado compartilhado opcional via Redis
 
 ## Setup
 
@@ -37,6 +38,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 CORS_ALLOW_ORIGINS=http://localhost:5173
 RATE_LIMIT_REQUESTS=120
 RATE_LIMIT_WINDOW_SECONDS=60
+STATE_BACKEND=inmemory
+# REDIS_URL=redis://localhost:6379/0
 ```
 
 Instalacao:
@@ -84,12 +87,26 @@ Swagger:
 - `GET /sessions?limit=20`
 - `POST /attempts`
 
+Regra de pontos da sessao:
+- nivel da sessao segue o tier do usuario (1 tier = 1 nivel)
+- pontos finais usam apenas acertos/erros
+- tempo medio de resposta influencia os pontos finais
+- resposta do finish inclui `result_summary` no formato `acertosxerros` (ex.: `6x4`)
+
 ### Rankings e stats
 
 - `GET /leaderboard/global`
 - `GET /leaderboard/season/{season_id}`
 - `GET /leaderboard/season/active`
 - `GET /stats/me`
+- `GET /stats/me/advanced`
+- `GET /stats/me/evolution?days=30`
+
+### Competitive
+
+- `POST /competitive/queue`
+- `GET /competitive/queue/status`
+- `POST /competitive/resolve/{session_id}`
 
 ### Infra
 
