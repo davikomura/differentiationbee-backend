@@ -1,3 +1,4 @@
+# app/modules/auth/service.py
 import os
 import re
 
