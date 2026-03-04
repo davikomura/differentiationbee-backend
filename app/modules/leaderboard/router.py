@@ -1,17 +1,32 @@
+# app/modules/leaderboard/router.py
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.modules.leaderboard.schemas import LeaderboardEntry, SeasonLeaderboardEntry
-from app.modules.leaderboard.service import global_leaderboard, season_leaderboard
+from app.modules.leaderboard.schemas import LeaderboardPage, SeasonLeaderboardEntry
+from app.modules.leaderboard.service import global_leaderboard, global_leaderboard_by_tier, season_leaderboard
 from app.modules.seasons.service import get_active_season
 
 router = APIRouter()
 
 
-@router.get("/global", response_model=list[LeaderboardEntry])
-def global_rank(db: Session = Depends(get_db), limit: int = Query(default=50, ge=1, le=200)):
-    return global_leaderboard(db, limit=limit)
+@router.get("/global", response_model=LeaderboardPage)
+def global_rank(
+    db: Session = Depends(get_db),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=50, ge=1, le=200),
+):
+    return global_leaderboard(db, page=page, limit=limit)
+
+
+@router.get("/global/tier/{tier_key}", response_model=LeaderboardPage)
+def global_rank_by_tier(
+    tier_key: str,
+    db: Session = Depends(get_db),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=50, ge=1, le=200),
+):
+    return global_leaderboard_by_tier(db, tier_key=tier_key, page=page, limit=limit)
 
 
 @router.get("/season/active", response_model=list[SeasonLeaderboardEntry])

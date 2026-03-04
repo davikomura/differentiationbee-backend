@@ -1,27 +1,79 @@
+# app/modules/leaderboard/service.py
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.modules.attempts.models import Attempt
 from app.modules.sessions.models import GameSession
+from app.modules.tiers.models import Tier
 from app.modules.users.models import User
 
 
-def global_leaderboard(db: Session, limit: int = 50) -> list[dict]:
-    users = (
-        db.query(User.id, User.username, User.points)
-        .order_by(User.points.desc(), User.created_at.asc())
-        .limit(limit)
-        .all()
-    )
+def _build_global_entries(users, start_rank: int = 1) -> list[dict]:
     return [
         {
-            "rank": idx + 1,
+            "rank": start_rank + idx,
             "user_id": row.id,
             "username": row.username,
             "points": int(row.points),
         }
         for idx, row in enumerate(users)
     ]
+
+
+def global_leaderboard(db: Session, page: int = 1, limit: int = 50) -> dict:
+    offset = (page - 1) * limit
+    query = db.query(User.id, User.username, User.points)
+    total = query.count()
+    users = (
+        query
+        .order_by(User.points.desc(), User.created_at.asc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "items": _build_global_entries(users, start_rank=offset + 1),
+        "page": page,
+        "limit": limit,
+        "total": total,
+    }
+
+
+def global_leaderboard_by_tier(db: Session, tier_key: str, page: int = 1, limit: int = 50) -> dict:
+    tier = db.query(Tier).filter(Tier.key == tier_key).first()
+    if not tier:
+        return {
+            "items": [],
+            "page": page,
+            "limit": limit,
+            "total": 0,
+        }
+
+    query = (
+        db.query(User.id, User.username, User.points)
+        .filter(User.points >= tier.min_points)
+    )
+
+    if tier.max_points is not None:
+        query = query.filter(User.points <= tier.max_points)
+
+    offset = (page - 1) * limit
+    total = query.count()
+    users = (
+        query
+        .order_by(User.points.desc(), User.created_at.asc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "items": _build_global_entries(users, start_rank=offset + 1),
+        "page": page,
+        "limit": limit,
+        "total": total,
+    }
 
 
 def season_leaderboard(db: Session, season_id: int, limit: int = 50) -> list[dict]:

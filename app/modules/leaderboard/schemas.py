@@ -1,3 +1,4 @@
+# app/modules/leaderboard/schemas.py
 from pydantic import BaseModel
 
 
@@ -14,3 +15,10 @@ class SeasonLeaderboardEntry(BaseModel):
     username: str
     total_score: int
     sessions_played: int
+
+
+class LeaderboardPage(BaseModel):
+    items: list[LeaderboardEntry]
+    page: int
+    limit: int
+    total: int
