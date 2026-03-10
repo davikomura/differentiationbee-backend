@@ -200,13 +200,18 @@ python -m app.scripts.export_openapi_lock
 
 Tabela atual:
 
-- Nivel 1: `35_000 ms`
-- Niveis 2-3: `45_000 ms`
-- Niveis 4-5: `55_000 ms`
-- Niveis 6-8: `60_000 ms`
-- Niveis 9-10: `75_000 ms`
-- Nivel 11: `90_000 ms`
-- Nivel 12: `105_000 ms`
+- Nivel 1: `40_000 ms`
+- Nivel 2: `50_000 ms`
+- Nivel 3: `60_000 ms`
+- Nivel 4: `70_000 ms`
+- Nivel 5: `80_000 ms`
+- Nivel 6: `90_000 ms`
+- Nivel 7: `100_000 ms`
+- Nivel 8: `110_000 ms`
+- Nivel 9: `125_000 ms`
+- Nivel 10: `140_000 ms`
+- Nivel 11: `160_000 ms`
+- Nivel 12: `180_000 ms`
 
 ### Validacao de tempo da tentativa
 

@@ -31,3 +31,5 @@ class IssuedQuestion(Base):
 
 Index("ix_issued_questions_user_session", IssuedQuestion.user_id, IssuedQuestion.session_id)
 Index("ix_issued_questions_session_issued", IssuedQuestion.session_id, IssuedQuestion.issued_at)
+Index("ix_issued_questions_user_expression", IssuedQuestion.user_id, IssuedQuestion.expression_str)
+Index("ix_issued_questions_user_derivative", IssuedQuestion.user_id, IssuedQuestion.derivative_str)

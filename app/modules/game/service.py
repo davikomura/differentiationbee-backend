@@ -10,6 +10,48 @@ from app.modules.game.models import IssuedQuestion
 from app.modules.game.time_limits import get_time_limit_ms
 from app.modules.sessions.models import GameSession
 
+MAX_UNIQUE_DERIVATIVE_ATTEMPTS = 64
+
+
+def _has_seen_expression(db: Session, user_id: int, expression_str: str) -> bool:
+    return (
+        db.query(IssuedQuestion.id)
+        .filter(IssuedQuestion.user_id == user_id, IssuedQuestion.expression_str == expression_str)
+        .first()
+        is not None
+    )
+
+
+def _has_seen_derivative(db: Session, user_id: int, derivative_str: str) -> bool:
+    return (
+        db.query(IssuedQuestion.id)
+        .filter(IssuedQuestion.user_id == user_id, IssuedQuestion.derivative_str == derivative_str)
+        .first()
+        is not None
+    )
+
+
+def _is_new_question_for_user(db: Session, user_id: int, candidate: dict) -> bool:
+    return not _has_seen_expression(db, user_id, candidate["expression_str"]) and not _has_seen_derivative(
+        db,
+        user_id,
+        candidate["derivative_str"],
+    )
+
+
+def _generate_question_for_user(db: Session, user_id: int, level: int, base_seed: int | None) -> dict:
+    first_candidate: dict | None = None
+
+    for attempt in range(MAX_UNIQUE_DERIVATIVE_ATTEMPTS):
+        seed = None if base_seed is None else base_seed + attempt
+        candidate = generate_random_function(level=level, seed=seed)
+        if first_candidate is None:
+            first_candidate = candidate
+        if _is_new_question_for_user(db, user_id, candidate):
+            return candidate
+
+    return first_candidate or generate_random_function(level=level, seed=base_seed)
+
 
 def issue_question(db: Session, user_id: int, session_id: int, level: int | None, locale: str = "en") -> IssuedQuestion:
     s = db.query(GameSession).filter(GameSession.id == session_id, GameSession.user_id == user_id).first()
@@ -36,7 +78,7 @@ def issue_question(db: Session, user_id: int, session_id: int, level: int | None
         )
         seed = int(s.seed) + int(issued_count) * 9973 + int(level) * 131
 
-    q = generate_random_function(level=level, seed=seed)
+    q = _generate_question_for_user(db, user_id=user_id, level=level, base_seed=seed)
 
     iq = IssuedQuestion(
         user_id=user_id,
