@@ -47,7 +47,10 @@ def create_attempt_from_question(
         raise HTTPException(status_code=409, detail=t("question_already_answered", locale))
     if time_taken_ms > q.time_limit_ms:
         raise HTTPException(status_code=400, detail=t("question_time_exceeded", locale))
-    elapsed_server_ms = int((datetime.now(timezone.utc) - q.issued_at).total_seconds() * 1000)
+    issued_at = q.issued_at
+    if issued_at.tzinfo is None:
+        issued_at = issued_at.replace(tzinfo=timezone.utc)
+    elapsed_server_ms = int((datetime.now(timezone.utc) - issued_at).total_seconds() * 1000)
     if elapsed_server_ms > (q.time_limit_ms + SERVER_TIME_GRACE_MS):
         raise HTTPException(status_code=400, detail=t("server_time_exceeded", locale))
 
@@ -91,6 +94,7 @@ def create_attempt_from_question(
     db.add(attempt)
 
     s.total_questions += 1
+    s.total_score = int(s.total_score or 0) + int(score)
     if is_correct:
         s.correct_answers += 1
 
