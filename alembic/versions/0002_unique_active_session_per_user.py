@@ -1,6 +1,6 @@
 """unique active session per user
 
-Revision ID: 0002_unique_active_session_per_user
+Revision ID: 0002_active_session_user
 Revises: 0001_initial_schema
 Create Date: 2026-02-23
 """
@@ -9,7 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = "0002_unique_active_session_per_user"
+revision = "0002_active_session_user"
 down_revision = "0001_initial_schema"
 branch_labels = None
 depends_on = None

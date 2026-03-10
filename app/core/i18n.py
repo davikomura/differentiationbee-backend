@@ -13,6 +13,16 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "A season with this slug already exists",
         "es": "Ya existe una season con este slug",
     },
+    "season_window_exists": {
+        "pt-BR": "Ja existe uma season com esse recorte temporal",
+        "en": "A season with this time window already exists",
+        "es": "Ya existe una season con esa ventana temporal",
+    },
+    "season_window_overlap": {
+        "pt-BR": "O recorte temporal da season sobrepoe outra season existente",
+        "en": "The season time window overlaps an existing season",
+        "es": "La ventana temporal de la season se superpone con otra existente",
+    },
     "season_translation_required": {
         "pt-BR": "Informe ao menos uma traducao em translations",
         "en": "Provide at least one translation in translations",

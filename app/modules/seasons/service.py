@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.i18n import SUPPORTED_LOCALES, t
@@ -53,25 +54,13 @@ def _season_to_read_dict(s: Season, locale: str | None) -> dict:
     }
 
 
-def create_season(db: Session, data: SeasonCreate, locale: str | None = None) -> dict:
-    if data.ends_at <= data.starts_at:
-        raise HTTPException(status_code=400, detail=t("season_ends_after_start", locale))
-
-    exists = db.query(Season).filter(Season.slug == data.slug).first()
-    if exists:
-        raise HTTPException(status_code=409, detail=t("season_slug_exists", locale))
-
+def _normalized_translation_rows(data: SeasonCreate, locale: str | None) -> list[tuple[str, str, str | None]]:
     if not data.translations:
         raise HTTPException(status_code=400, detail=t("season_translation_required", locale))
 
     required_locales = set(SUPPORTED_LOCALES)
     incoming_locales: set[str] = set()
-
-    s = Season(
-        slug=data.slug,
-        starts_at=data.starts_at,
-        ends_at=data.ends_at,
-    )
+    rows: list[tuple[str, str, str | None]] = []
 
     for tr in data.translations:
         normalized = tr.locale.strip()
@@ -80,13 +69,7 @@ def create_season(db: Session, data: SeasonCreate, locale: str | None = None) ->
         if normalized in incoming_locales:
             raise HTTPException(status_code=400, detail=t("season_translation_duplicate", locale, locale_value=normalized))
         incoming_locales.add(normalized)
-        s.translations.append(
-            SeasonTranslation(
-                locale=normalized,
-                title=tr.title,
-                description=tr.description,
-            )
-        )
+        rows.append((normalized, tr.title, tr.description))
 
     missing = sorted(required_locales - incoming_locales)
     if missing:
@@ -95,8 +78,87 @@ def create_season(db: Session, data: SeasonCreate, locale: str | None = None) ->
             detail=t("season_translation_missing_required", locale, missing=", ".join(missing)),
         )
 
+    return sorted(rows)
+
+
+def _season_translation_rows(season: Season) -> list[tuple[str, str, str | None]]:
+    return sorted((tr.locale, tr.title, tr.description) for tr in season.translations)
+
+
+def _is_same_create_payload(season: Season, data: SeasonCreate, translation_rows: list[tuple[str, str, str | None]]) -> bool:
+    return (
+        season.slug == data.slug
+        and _season_translation_rows(season) == translation_rows
+    )
+
+
+def _find_exact_window(db: Session, data: SeasonCreate) -> Season | None:
+    return (
+        db.query(Season)
+        .filter(Season.starts_at == data.starts_at, Season.ends_at == data.ends_at)
+        .first()
+    )
+
+
+def _find_overlapping_season(db: Session, data: SeasonCreate) -> Season | None:
+    return (
+        db.query(Season)
+        .filter(Season.starts_at < data.ends_at, Season.ends_at > data.starts_at)
+        .first()
+    )
+
+
+def create_season(db: Session, data: SeasonCreate, locale: str | None = None) -> dict:
+    if data.ends_at <= data.starts_at:
+        raise HTTPException(status_code=400, detail=t("season_ends_after_start", locale))
+
+    translation_rows = _normalized_translation_rows(data, locale)
+
+    exact_window = _find_exact_window(db, data)
+    if exact_window:
+        if _is_same_create_payload(exact_window, data, translation_rows):
+            return _season_to_read_dict(exact_window, locale)
+        raise HTTPException(status_code=409, detail=t("season_window_exists", locale))
+
+    exists = db.query(Season).filter(Season.slug == data.slug).first()
+    if exists:
+        raise HTTPException(status_code=409, detail=t("season_slug_exists", locale))
+
+    overlapping = _find_overlapping_season(db, data)
+    if overlapping:
+        raise HTTPException(status_code=409, detail=t("season_window_overlap", locale))
+
+    s = Season(
+        slug=data.slug,
+        starts_at=data.starts_at,
+        ends_at=data.ends_at,
+    )
+
+    for normalized, title, description in translation_rows:
+        s.translations.append(
+            SeasonTranslation(
+                locale=normalized,
+                title=title,
+                description=description,
+            )
+        )
+
     db.add(s)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        exact_window = _find_exact_window(db, data)
+        if exact_window:
+            if _is_same_create_payload(exact_window, data, translation_rows):
+                return _season_to_read_dict(exact_window, locale)
+            raise HTTPException(status_code=409, detail=t("season_window_exists", locale))
+
+        exists = db.query(Season).filter(Season.slug == data.slug).first()
+        if exists:
+            raise HTTPException(status_code=409, detail=t("season_slug_exists", locale))
+        raise
+
     db.refresh(s)
 
     return _season_to_read_dict(s, locale)

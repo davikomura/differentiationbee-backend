@@ -4,8 +4,12 @@ from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from app.db.base import Base
 
+
 class Season(Base):
     __tablename__ = "seasons"
+    __table_args__ = (
+        UniqueConstraint("starts_at", "ends_at", name="uq_seasons_time_window"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     slug = Column(String, unique=True, nullable=False)
@@ -14,9 +18,9 @@ class Season(Base):
     ends_at = Column(DateTime(timezone=True), nullable=False)
 
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    
-    translations = relationship("SeasonTranslation", back_populates="season", cascade="all, delete-orphan", passive_deletes=True,)
-    
+
+    translations = relationship("SeasonTranslation", back_populates="season", cascade="all, delete-orphan", passive_deletes=True)
+
     sessions = relationship(
         "GameSession",
         back_populates="season",
@@ -24,7 +28,9 @@ class Season(Base):
         passive_deletes=True,
     )
 
+
 Index("ix_seasons_window", Season.starts_at, Season.ends_at)
+
 
 class SeasonTranslation(Base):
     __tablename__ = "season_translations"
